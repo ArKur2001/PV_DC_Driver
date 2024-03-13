@@ -1,0 +1,24 @@
+Circuit: * D:\MojePliki\Git\PV_DC_driver\simulations\PWM_NMOS_driver\pwm_nmos_driver.asc
+
+Direct Newton iteration for .op point succeeded.
+Changing Tseed to 1e-013
+Changing Tseed to 1e-015
+Changing Tseed to 1e-012
+
+Date: Wed Sep 28 19:00:26 2022
+Total elapsed time: 0.311 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 51503
+traniter = 51483
+tranpoints = 14358
+accept = 10667
+rejected = 3688
+matrix size = 27
+fillins = 12
+solver = Normal
+Matrix Compiler1: 2.40 KB object code size  0.3/0.2/[0.1]
+Matrix Compiler2: off  [0.2]/0.2/1.0
+

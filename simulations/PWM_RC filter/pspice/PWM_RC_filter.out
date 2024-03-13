@@ -1,0 +1,75 @@
+
+**** 05/05/22 15:06:01 ******* PSpice Lite (March 2016) ******* ID# 10813 ****
+
+ PWM RC filter 1
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+* f = 20kHz 
+VIN IN 0 PULSE 0 3 0 0 0 30u 60u
+
+R1 IN 2 1000
+*L1 2 OUT {ind}
+R2 2 OUT 1000
+C1 OUT 0 200nF
+C2 2 0 200nF
+
+*.PARAM ind=1m
+*.STEP PARAM ind LIST 4.7m
+
+.TRAN 0 3m 0 1u
+.PROBE
+.END
+
+**** 05/05/22 15:06:01 ******* PSpice Lite (March 2016) ******* ID# 10813 ****
+
+ PWM RC filter 1
+
+
+ ****     INITIAL TRANSIENT SOLUTION       TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+ NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE
+
+
+(    2)    0.0000  (   IN)    0.0000  (  OUT)    0.0000  
+
+
+
+
+    VOLTAGE SOURCE CURRENTS
+    NAME         CURRENT
+
+    VIN          0.000E+00
+
+    TOTAL POWER DISSIPATION   0.00E+00  WATTS
+
+
+
+          JOB CONCLUDED
+
+**** 05/05/22 15:06:01 ******* PSpice Lite (March 2016) ******* ID# 10813 ****
+
+ PWM RC filter 1
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  Total job time (using Solver 1)   =         .03
+

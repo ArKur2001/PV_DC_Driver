@@ -1,0 +1,17 @@
+PWM RC filter 1
+
+* f = 20kHz 
+VIN IN 0 PULSE 0 3 0 0 0 30u 60u
+
+R1 IN 2 1000
+*L1 2 OUT {ind}
+R2 2 OUT 1000
+C1 OUT 0 200nF
+C2 2 0 200nF
+
+*.PARAM ind=1m
+*.STEP PARAM ind LIST 4.7m
+
+.TRAN 0 3m 0 1u
+.PROBE
+.END

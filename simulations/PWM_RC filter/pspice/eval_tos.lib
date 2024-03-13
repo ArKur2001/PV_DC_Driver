@@ -1,0 +1,2144 @@
+* Sample standard device library
+*
+*  Copyright Cadence Design Systems, Inc. 2002 All Rights Reserved.
+*
+*
+* $Revision:   1.4  $
+* $Author:   HIRASUNA  $
+* $Date:   11 May 2000 13:26:32  $
+*---------------------------------------------------------------------------
+*
+* This is a reduced version of PSpice's standard parts model libraries. Some
+* components from several types of component libraries have been included
+* here.
+*
+*
+*     The following is a summary of parts in this library:
+*
+*           Part name           Part type
+*           ---------           ---------
+*           Q2N2222             NPN bipolar transistor
+*           Q2N2907A            PNP bipolar transistor
+*           Q2N3904             NPN bipolar transistor
+*           Q2N3906             PNP bipolar transistor
+*
+*           Q2N6052             PNP Darlington power transistor
+*           Q2N6059             NPN Darlington power transistor
+*
+*           CD4016B             Analog Switch
+*
+*           D1N750              zener diode
+*           MV2201              voltage variable capacitance diode
+*           D1N4002             power diode
+*           D1N4148             switching diode
+*           MBD101              switching diode
+*		D1N914		  diode
+*		D1N3940		  diode
+*
+*           J2N3819             N-channel Junction field effect transistor
+*           J2N4393             N-channel Junction field effect transistor
+*
+*           IXGH40N60           N-channel Insulated Gate Bipolar Transistor
+*
+*           LM324               linear operational amplifier
+*           LF411               linear operational amplifier
+*           UA741               linear operational amplifier
+*           LM111               voltage comparator
+*
+*           K3019PL_3C8         ferroxcube pot magnetic core
+*           K502T300_3C8        ferroxcube pot magnetic core
+*           K528T500_3C8        ferroxcube pot magnetic core
+*           KRM8PL_3C8          ferroxcube pot magnetic core
+*
+*           IRF150              N-type power MOS field effect transistor
+*           IRF9140             P-type power MOS field effect transistor
+*
+*           PAL20RP4B           Programmable Logic Device
+*
+*           A4N25               optocoupler
+*
+*           2N1595              silicon controlled rectifier
+*           2N5444              Triac
+*
+*           555D                555 timer subcircuit
+*
+*           Sw_tOpen,Sw_tClose  Time Dependent Switch Models
+*
+*           P/L2C               Coupled, equal, lumped T-section tline
+*           P/L2C_A             Coupled, unequal, lumped T-section tline
+*           P/LS                Uncoupled (single), lumped tline
+*           P/T2C               Coupled, equal, distributed tline
+*           P/T2C_A             Coupled,unequal,distributed(asymmetrical) tline
+*           P/TS                Uncoupled (single), distributed tline
+*		T2COUPLED		  2 symmetric coupled lossy lines
+*		T3COUPLED		  3 symmetric coupled lossy lines
+*
+*           ESC2_B              Pentium Mercury set IBIS I/O model
+*
+*           54152A              MULTIPLEXER/DATA SELECTOR 8-1 LINE
+*           7400                Quadruple 2-input Positive-Nand Gates
+*           7401                Quadruple 2-input Positive-Nand Gates with
+*                                  Open-Collector Outputs
+*           7402                Quadruple 2-input Positive-Nor Gates
+*           7403                Quadruple 2-input Positive-Nand Gates with
+*                                  Open-Collector Outputs
+*           7404                Hex Inverters
+*           7405                Hex Inverters with Open-Collector Outputs
+*           7406                Hex Inverter Buffers/Drivers with
+*                                  Open-Collector High-Voltage Outputs
+*           7407                Hex Buffers/Drivers with Open-Collector
+*                                  High-Voltage Outputs
+*           7408                Quadruple 2-input Positive-And Gates
+*           7409                Quadruple 2-input Positive-And Gates with
+*                                  Open-Collector Outputs
+*           7410                Triple 3-input Positive-Nand Gates
+*           74100               8-Bit Bistable Latches
+*           74107               Dual J-K Flip-Flops with Clear
+*           74109               Dual J-KBar Positive-Edge-Triggered Flip-Flops
+*           7411                Triple 3-input Posit ive-And Gates
+*           74S11               S-series TTL Triple 3-input Positive-AND gates
+*           74110               And-Gated J-K Master-Slave Flip-Flops with Data
+*                                  Lockout
+*           74111               Dual J-K Master-Slave Flip-Flops with Data
+*                                  Lockout
+*           7412                Triple 3-input Positive-Nand Gates with
+*                                  Open-Collector Outputs
+*           74121               Non-retriggerable Monostable Multivibrator
+*                                  w/Schmitt-Trigger Inputs
+*           74122               Retriggerable Monostable Multivibrator
+*           74123               Retriggerable Monostable Multivibrator
+*           74125               Quadruple Bus Buffer with 3-state Outputs
+*           74126               Quadruple Bus Buffer with 3-state Outputs
+*           74128               Line Drivers
+*           7413                Dual 4-input Positive-Nand Schmitt Triggers
+*           74132               Quadruple 2-input Positive-Nand Schmitt Trigger
+*           74136               Quadruple 2-input Exclusive-Or Gates with
+*                                  Open-Collector Outputs
+*           7414                Hex Schmitt-Trigger Inverters
+*           74147               PRIORITY ENCODER 10-4 LINE
+*           74148               PRIORITY ENCODER 8-3 LINE
+*           74151A              MULTIPLEXER/DATA SELECTOR 8-1 LINE
+*           74153               DUAL 4-LINE TO 1-LINE DATA
+*                                 SELECTORS/MULTIPLEXERS
+*           74154               DECODER/DEMULTIPLEXER 4-16 LINE
+*           74155               DECODER/DEMULTIPLEXER 2-4 LINE
+*           74156               DECODER/DEMULTIPLEXER 2-4 LINE WITH
+*                                 OPEN COLLECTOR OUTPUTS
+*           74157               QUADRUPLE 2-LINE TO 1-LINE DATA
+*                                 SELECTORS/MULTIPLEXERS
+*           74159               DECODER/DEMULTIPLEXER 4-16 LINE WITH
+*                                 OPEN-COLLECTOR OUTPUTS
+*           7416                Hex Inverter Buffers/Drivers with
+*                                 Open-Collector High-Voltage Outputs
+*           74160               Synchronous 4-bit Decade Counters with
+*                                 asynchronous clear
+*           74161               Synchronous 4-bit Binary Counter with Direct
+*                                 Clear
+*           74162               Synchronous 4-bit Decade Counters with
+*                                 synchronous clear
+*           74163               Synchronous 4-bit Binary Counter
+*           74164               8-BIT PARALLEL-OUT SERIAL SHIFT REGISTERS
+*           7417                Hex Buffers/Drivers with Open-Collector
+*                                 High-Voltage Outputs
+*           74173               REGISTERS D-TYPE 4-BIT WITH 3-STATE OUTPUTS
+*           74174               HEX D-TYPE FLIP-FLOPS WITH CLEAR
+*           74175               QUADRUPLE D-TYPE FLIP-FLOPS WITH CLEAR
+*           74176               35MHz Presettable Decade and Binary
+*                                 Counter/Latch
+*           74177               35MHz Presettable Decade and Binary
+*                                  Counter/Latch
+*           74178               4-BIT PARALLEL-ACCESS SHIFT REGISTER
+*           74179               4-BIT PARALLEL-ACCESS SHIFT REGISTER
+*           74180               PARITY GENERATOR/CHECKER ODD/EVEN 9-BIT
+*           74181               ALU / FUNCTION GENERATOR
+*           74182               LOOK-AHEAD CARRY GENERATOR
+*           74184               BCD-TO-BINARY CONVERTERS
+*           74185A              BINARY-TO-BCD CONVERTERS
+*           74194               4-BIT BIDIRECTIONAL UNIVERSAL SHIFT REGISTERS
+*           74195               4-BIT PARALLEL-ACCESS SHIFT REGISTERS
+*           74196               4-Bit Presettable Decade Counter/Latch
+*           74197               4-Bit Presettable Binary Counter/Latch
+*           7420                Dual 4-input Positive-Nand Gates
+*           7422                Dual 4-input Positive-Nand Gates with
+*                                 Open-Collector Outputs
+*           7423                Dual 4-input Nor Gates with Strobe
+*           74246               DECODER/DRIVER BCD-7 SEGMENT WITH
+*                                 OPEN-COLLECTOR OUTPUTS
+*           74248               DECODER/DRIVER BCD-7 SEGMENT WITH INTERNAL
+*                                 PULLUPS
+*           74249               DECODER/DRIVER BCD-7 SEGMENT WITH
+*                                 OPEN-COLLECTOR OUTPUTS
+*           7425                Dual 4-input Nor Gates with Strobe
+*           74251               MULTIPLEXER/DATA SELECTOR 8-1 LINE WITH
+*                                 3-STATE OUTPUTS
+*           74259               8-BIT ADDRESSABLE LATCHES
+*           7426                High-Voltage Interface Positive-Nand Gates
+*           74265               QUAD. COMPLEMENTARY-OUTPUT ELEMENTS
+*           7427                Triple 3-input Positive-Nor Gates
+*           74273               OCTAL D-TYPE EDGE-TRIGGERED FLIP-FLOPS WITH
+*                                 CLEAR
+*           74276               QUADRUPLE J-K FLIP-FLOPS
+*           74278               PRIORITY REGISTERS 4-BIT CASCADABLE
+*           74279               QUADRUPLE SBAR-RBAR LATCHES
+*           7428                Quadruple 2-input Positive-Nor Buffers
+*           74283               4-BIT BINARY FULL ADDERS WITH FAST CARRY
+*           74290               COUNTER DECADE 4-BIT, ASYNCHRONOUS
+*           74293               COUNTER BINARY 4-BIT, ASYNCHRONOUS
+*           74298               MULTIPLEXERS QUAD 2-INPUT WITH STORAGE
+*           7430                8-input Positive-Nand Gates
+*           7432                Quadruple 2-input Positive-Or Gates
+*           7433                Quadruple 2-input Positive-Nor Buffers
+*                                 w/ Open-Collector Outputs
+*           74351               DUAL DATA SELECTOR/MULTIPLEXER WITH 3-STATE
+*                                 OUTPUTS
+*           74365A              Hex Bus Drivers with 3-STATE Outputs
+*           74366A              Hex Bus Drivers with 3-STATE Outputs
+*           74367A              Hex Bus Drivers with 3-STATE Outputs
+*           74368A              Hex Bus Drivers with 3-STATE Outputs
+*           7437                Quadruple 2-input Positive-Nand Buffers
+*           74376               Quadruple J-K Flip-Flops
+*           7438                Quadruple 2-input Positive-Nand Buffers
+*                                 w/ Open-Collector Outputs
+*           7439                Quadruple 2-input Positive Nand Buffers with
+*                                 Open-Collector Outputs
+*           74390               COUNTER DECADE 4-BIT, ASYNCHRONOUS
+*           74393               COUNTER BINARY 4-BIT, ASYNCHRONOUS
+*           7440                Dual 4-input Positive-Nand Buffers
+*           74425               Quadruple Bus Buffers with 3-STATE Outputs
+*           74426               Quadruple Bus Buffers with 3-STATE Outputs
+*           7442A               DECODER BCD-DECIMAL 4-10 LINE
+*           7443A               DECODER EXCESS-3-DECIMAL 4-10 LINE
+*           7444A               DECODER GRAY-DECIMAL 4-10 LINE
+*           7445                DECODER/DRIVER BCD-DECIMAL WITH OPEN COLLECTOR
+*                                 OUTPUTS
+*           7446A               DECODER/DRIVER BCD-7 SEGMENT WITH
+*                                 OPEN-COLLECTOR OUTPUTS
+*           7448                DECODER/DRIVER BCD-7 SEGMENT WITH INTERNAL
+*                                 PULLUPS
+*           7449                DECODER/DRIVER BCD-7 SEGMENT WITH
+*                                 OPEN-COLLECTOR OUTPUTS
+*           74490               COUNTER DECADE 4-BIT, ASYNCHRONOUS
+*           7450                Dual 2-wide 2-input And-Or-Invert Gates
+*           7451                And-Or-Invert Gates
+*           7453                Expandable 4-wide And-Or-Invert Gates
+*           7454                4-wide And-Or-Invert Gates
+*           7460                Dual 4-input Expanders
+*           7470                And-Gated J-K Positive-Edge-Triggered
+*                                 Flip-Flops with Preset & Clear
+*           7472                And Gated J-K Master-Slave
+*                                 Flip-Flops with Preset and Clear
+*           7473                Dual J-K Flip-Flops with Clear
+*           7474                Dual D-Type Positive-Edge-Triggered
+*                                 Flip-Flops with Preset and Clear
+*           7475                4-bit bistable latches (dual 2-bit common
+*                                 clock4-bit bistable latches )
+*           7476                Dual J-K Flip-Flops with Preset and Clear
+*           7477                4-bit bistable latches
+*           7482                2-BIT BINARY FULL ADDERS
+*           7483A               4-BIT BINARY FULL ADDERS WITH FAST CARRY
+*           7485                4-BIT MAGNITUDE COMPARATOR
+*           7486                Quadruple 2-input Exclusive-Or Gates
+*           7491A               8-BIT SHIFT REGISTERS
+*           7492A               COUNTER DIVIDE-BY-12 4-BIT, ASYNCHRONOUS
+*           7493A               COUNTER BINARY 4-BIT, ASYNCHRONOUS
+*           7494                4-BIT SHIFT REGISTERS
+*           7495A               4-BIT PARALLEL SHIFT REGISTERS
+*           7496                8-BIT PARALLEL-OUT SERIAL SHIFT REGISTERS
+*
+*------------------------------------------------------------------
+* Library of bipolar transistor model parameters
+*
+* This is a reduced version of PSpice's bipolar transistor model library.
+* You are welcome to make as many copies of it as you find convenient.
+*
+* The parameters in this model library were derived from the data sheets for
+* each part.  Each part was characterized using the Parts option.
+* Devices can also be characterized without Parts as follows:
+*
+*	NE, NC		Normally set to 4
+*	BF, ISE, IKF	These are adjusted to give the nominal beta vs.
+*			collector current curve.  BF controls the mid-
+*			range beta.  ISE/IS controls the low-current
+*			roll-off.  IKF controls the high-current rolloff.
+*	ISC		Set to ISE.
+*	IS, RB, RE, RC	These are adjusted to give the nominal VBE vs.
+*			IC and VCE vs. IC curves in saturation.  IS
+*			controls the low-current value of VBE.  RB+RE
+*			controls the rise of VBE with IC.  RE+RC controls
+*			the rise of VCE with IC.  RC is normally set to 0.
+*	VAF		Using the voltages specified on the data sheet
+*			VAF is set to give the nominal output impedance
+*			(RO on the .OP printout) on the data sheet.
+*	CJC, CJE	Using the voltages specified on the data sheet
+*			CJC and CJE are set to give the nominal input
+*			and output capacitances (CPI and CMU on the .OP
+*			printout; Cibo and Cobo on the data sheet).
+*	TF		Using the voltages and currents specified on the
+*			data sheet for FT, TF is adjusted to produce the
+*			nominal value of FT on the .OP printout.
+*	TR		Using the rise and fall time circuits on the
+*			data sheet, TR (and if necessary TF) are adjusted
+*			to give a transient analysis which shows the
+*			nominal values of the turn-on delay, rise time,
+*			storage time, and fall time.
+*	KF, AF		These parameters are only set if the data sheet has
+*			a spec for noise.  Then, AF is set to 1 and KF
+*			is set to produce a total noise at the collector
+*			which is greater than the generator noise at the
+*			collector by the rated number of decibels.
+*
+*$
+* 		Level-1 Model for the 0.5-um PMOS Transistor (Part PMOS0P5)
+* 		(created by Anas Hamoui & Olivier Trescases)
+.model	PMOS0P5	PMOS(Level=1 VTO=-0.8 GAMMA=0.45 PHI=0.75 
++		LD=0.09E-06 WD=0 UO=115 LAMBDA=0.2 TOX=9.5E-9 PB=0.9 CJ=0.93E-3 
++		CJSW=170E-12 MJ=0.5 MJSW=0.35 CGDO=0.35E-9 JS=5E-9 CGBO=0.38E-9
++		CGSO=0.35E-9)
+*$
+* 		Level-1 Model for the 0.5-um NMOS Transistor (Part NMOS0P5)
+* 		(created by Anas Hamoui & Olivier Trescases)
+.model	NMOS0P5	NMOS(Level=1 VTO=0.7 GAMMA=0.5 PHI=0.8 
++		LD=0.08E-06 WD=0 UO=460 LAMBDA=0.1 TOX=9.5E-9 PB=0.9 CJ=0.57E-3 
++		CJSW=120E-12 MJ=0.5 MJSW=0.4 CGDO=0.4E-9 JS=10E-9 CGBO=0.38E-9
++	        CGSO=0.4E-9)
+*$
+* Model for Nonlinear Transformer with Center-Tapped Secondary
+.subckt TX_II IN1 IN2 OUT1 OUT2 Params: 
+Lp IN2 IN1 10mH
+Ls1 OUT1 OUT2 52uH
+K1 Lp Ls1 0.999
+.ends TX_II
+*$
+* Model for Nonlinear Transformer with Center-Tapped Secondary
+.subckt TX_I IN1 IN2 OUT1 OUT2 OUT3 Params: 
+Lp IN2 IN1 10mH
+Ls1 OUT1 OUT2 52uH
+Ls2 OUT2 OUT3 52uH
+K1 Lp Ls1 0.999
+K2 Lp Ls2 0.999
+K3 Ls1 Ls2 0.999
+.ends TX_I
+*$
+* DIODA ZENERA - Podobwod
+.SUBCKT ZENER_II Z1 Z2
+* polaczenie     |  |
+*	        anoda |
+*		      katoda
+D2 Z1 Z2 mA_DIODA
+D1 Z2 Z3 idealna_DIODA
+VZ Z3 Z4 DC 6.7
+RZ Z4 Z1 20
+* modele zastosowanych diod
+.MODEL mA_DIODA D (IS=100pA N=1.7)
+.MODEL idealna_DIODA D (IS=100pA N=0.01)
+.ENDS ZENER_II
+*$
+* DIODA ZENERA - Podobwod
+.SUBCKT ZENER_I Z1 Z2
+* polaczenie    |  |
+*	       anoda |
+*		    katoda
+D2 Z1 Z2 mA_DIODA
+D1 Z2 Z3 idealna_DIODA
+VZ Z3 Z4 DC 4.9
+RZ Z4 Z1 10
+* modele zastosowanych diod
+.MODEL mA_DIODA D (IS=100pA N=1.7)
+.MODEL idealna_DIODA D (IS=100pA N=0.01)
+.ENDS ZENER_I
+*$
+* TL062 OPERATIONAL AMPLIFIER "MACROMODEL" SUBCIRCUIT
+* CREATED USING PARTS RELEASE 4.01 ON 06/28/89 AT 10:42
+* (REV N/A)      SUPPLY VOLTAGE: +/-15V
+* CONNECTIONS:   NON-INVERTING INPUT
+*                | INVERTING INPUT
+*                | | POSITIVE POWER SUPPLY
+*                | | | NEGATIVE POWER SUPPLY
+*                | | | | OUTPUT
+*                | | | | |
+.SUBCKT TL062    1 2 3 4 5
+*
+C1   11 12 3.498E-12
+C2    6  7 15.00E-12
+DC    5 53 DX
+DE   54  5 DX
+DLP  90 91 DX
+DLN  92 90 DX
+DP    4  3 DX
+EGND 99  0 POLY(2) (3,0) (4,0) 0 .5 .5
+FB    7 99 POLY(5) VB VC VE VLP VLN 0 318.3E3 -300E3 300E3 300E3 -300E3
+GA    6  0 11 12 94.26E-6
+GCM 0  6 10 99 1.607E-9
+ISS   3 10 DC 52.50E-6
+HLIM 90  0 VLIM 1K
+J1   11  2 10 JX
+J2   12  1 10 JX
+R2    6  9 100.0E3
+RD1   4 11 10.61E3
+RD2   4 12 10.61E3
+RO1   8  5 200
+RO2   7 99 200
+RP    3  4 150.0E3
+RSS  10 99 3.810E6
+VB    9  0 DC 0
+VC    3 53 DC 2.200
+VE   54  4 DC 2.200
+VLIM  7  8 DC 0
+VLP  91  0 DC 15
+VLN   0 92 DC 15
+.MODEL DX D(IS=800.0E-18)
+.MODEL JX PJF(IS=15.00E-12 BETA=100.5E-6 VTO=-1)
+.ENDS
+*$
+* TL082 OPERATIONAL AMPLIFIER "MACROMODEL" SUBCIRCUIT
+* CREATED USING PARTS RELEASE 4.01 ON 06/16/89 AT 13:08
+* (REV N/A)      SUPPLY VOLTAGE: +/-15V
+* CONNECTIONS:   NON-INVERTING INPUT
+*                | INVERTING INPUT
+*                | | POSITIVE POWER SUPPLY
+*                | | | NEGATIVE POWER SUPPLY
+*                | | | | OUTPUT
+*                | | | | |
+.SUBCKT TL082    1 2 3 4 5
+*
+C1   11 12 3.498E-12
+C2    6  7 15.00E-12
+DC    5 53 DX
+DE   54  5 DX
+DLP  90 91 DX
+DLN  92 90 DX
+DP    4  3 DX
+EGND 99  0 POLY(2) (3,0) (4,0) 0 .5 .5
+FB    7 99 POLY(5) VB VC VE VLP VLN 0 4.715E6 -5E6 5E6 5E6 -5E6
+GA    6  0 11 12 282.8E-6
+GCM   0  6 10 99 8.942E-9
+ISS   3 10 DC 195.0E-6
+HLIM 90  0 VLIM 1K
+J1   11  2 10 JX
+J2   12  1 10 JX
+R2    6  9 100.0E3
+RD1   4 11 3.536E3
+RD2   4 12 3.536E3
+RO1   8  5 150
+RO2   7 99 150
+RP    3  4 2.143E3
+RSS  10 99 1.026E6
+VB    9  0 DC 0
+VC    3 53 DC 2.200
+VE   54  4 DC 2.200
+VLIM  7  8 DC 0
+VLP  91  0 DC 25
+VLN   0 92 DC 25
+.MODEL DX D(IS=800.0E-18)
+.MODEL JX PJF(IS=15.00E-12 BETA=270.1E-6 VTO=-1)
+.ENDS
+*$
+* LT1013 OPERATIONAL AMPLIFIER "MACROMODEL" SUBCIRCUIT
+* CREATED USING PARTS RELEASE 4.03 ON 07/18/90 AT 11:04
+* REV (N/A)      SUPPLY VOLTAGE: 5V
+* CONNECTIONS:   NON-INVERTING INPUT
+*                | INVERTING INPUT
+*                | | POSITIVE POWER SUPPLY
+*                | | | NEGATIVE POWER SUPPLY
+*                | | | | OUTPUT
+*                | | | | |
+.SUBCKT LT1013   1 2 3 4 5
+*
+C1   11 12 5.887E-12
+C2    6  7 30.00E-12
+DC    5 53 DX
+DE   54  5 DX
+DLP  90 91 DX
+DLN  92 90 DX
+DP    4  3 DX
+EGND 99  0 POLY(2) (3,0) (4,0) 0 .5 .5
+FB 7 99 POLY(5) VB VC VE VLP VLN 0 204.6E6 -20E6 20E6 20E6 -20E6
+GA    6  0 11 12 113.1E-6
+GCM   0  6 10 99 225.7E-12
+IEE   3 10 DC 12.04E-6
+HLIM 90  0 VLIM 1K
+Q1   11  2 13 QX
+Q2   12  1 14 QX
+R2    6  9 100.0E3
+RC1   4 11 8.842E3
+RC2   4 12 8.842E3
+RE1  13 10 4.518E3
+RE2  14 10 4.518E3
+REE  10 99 16.62E6
+RO1   8  5 25
+RO2   7 99 50
+RP    3  4 16.23E3
+VB    9  0 DC 0
+VC    3 53 DC 1.300
+VE   54  4 DC .7
+VLIM  7  8 DC 0
+VLP  91  0 DC 25
+VLN   0 92 DC 25
+.MODEL DX D(IS=800.0E-18)
+.MODEL QX PNP(IS=800.0E-18 BF=333.3)
+.ENDS
+*$
+.model Q2N2222  NPN(Is=14.34f Xti=3 Eg=1.11 Vaf=74.03 Bf=255.9 Ne=1.307
++		Ise=14.34f Ikf=.2847 Xtb=1.5 Br=6.092 Nc=2 Isc=0 Ikr=0 Rc=1
++		Cjc=7.306p Mjc=.3416 Vjc=.75 Fc=.5 Cje=22.01p Mje=.377 Vje=.75
++		Tr=46.91n Tf=411.1p Itf=.6 Vtf=1.7 Xtf=3 Rb=10)
+*		National	pid=19		case=TO18
+*		88-09-07 bam	creation
+*$
+.model Q2N2907A PNP(Is=650.6E-18 Xti=3 Eg=1.11 Vaf=115.7 Bf=231.7 Ne=1.829
++		Ise=54.81f Ikf=1.079 Xtb=1.5 Br=3.563 Nc=2 Isc=0 Ikr=0 Rc=.715
++		Cjc=14.76p Mjc=.5383 Vjc=.75 Fc=.5 Cje=19.82p Mje=.3357 Vje=.75
++		Tr=111.3n Tf=603.7p Itf=.65 Vtf=5 Xtf=1.7 Rb=10)
+*		National	pid=63		case=TO18
+*		88-09-09 bam	creation
+*$
+.model Q2N3904	NPN(Is=6.734f Xti=3 Eg=1.11 Vaf=74.03 Bf=416.4 Ne=1.259
++		Ise=6.734f Ikf=66.78m Xtb=1.5 Br=.7371 Nc=2 Isc=0 Ikr=0 Rc=1
++		Cjc=3.638p Mjc=.3085 Vjc=.75 Fc=.5 Cje=4.493p Mje=.2593 Vje=.75
++		Tr=239.5n Tf=301.2p Itf=.4 Vtf=4 Xtf=2 Rb=10)
+*		National	pid=23		case=TO92
+*		88-09-08 bam	creation
+*$
+.model Q2N3906	PNP(Is=1.41f Xti=3 Eg=1.11 Vaf=18.7 Bf=180.7 Ne=1.5 Ise=0
++		Ikf=80m Xtb=1.5 Br=4.977 Nc=2 Isc=0 Ikr=0 Rc=2.5 Cjc=9.728p
++		Mjc=.5776 Vjc=.75 Fc=.5 Cje=8.063p Mje=.3677 Vje=.75 Tr=33.42n
++		Tf=179.3p Itf=.4 Vtf=4 Xtf=6 Rb=10)
+*		National	pid=66		case=TO92
+*		88-09-09 bam	creation
+*$
+*-------------------------------------------------------------------------------
+* Darlington power transistors
+*
+*
+* Motorola 100 Volt 12 Amp Darlington Transistor  07/20/98
+*
+* connections:    Collector
+*                 |  Base
+*                 |  |  Emitter
+*                 |  |  |
+.SUBCKT Q2N6052   1  2  3
+*
+Q1 1 2 4 Q1model
+Q2 1 4 3 Q2model .99
+D1 1 3 Dmodel
+R1 2 4 5.000E3
+R2 4 3 50
+.MODEL Dmodel D
++ IS=5.3253E-12
++ N=3.4748
++ RS=1.0000E-3
++ CJO=1.0000E-12
++ M=.3333
++ VJ=.75
++ ISR=100.00E-12
++ BV=120
++ IBV=1.00E-6
++ TT=5.0000E-9
+.MODEL Q1model PNP
++  IS=1.500E-12 BF=2.997E3 NF=1 VAF=100
++  IKF=.263 ISE=6.747E-12 NE=1.413 BR=499.5
++  NR=1 VAR=100 IKR=19.98 ISC=19.59E-12
++  NC=2.997 RB=1.0845 NK=.5779
++  RE=0 RC=0.196311 EG=1.110
++  CJE=316.6E-12 VJE=.436 MJE=.2878 TF=9.781E-9
++  XTF=1 VTF=10 ITF=10.00E-3 CJC=372.5E-12
++  VJC=1.177 MJC=.2738 XCJC=.9 FC=.5
++  TR=7.561E-9
+.MODEL Q2model PNP
++  IS=1.500E-12 BF=2.997E3 NF=1 VAF=100
++  IKF=.263 ISE=6.747E-12 NE=1.413 BR=499.5
++  NR=1 VAR=100 IKR=19.98 ISC=19.59E-12
++  NC=2.997 RB=1.0845 NK=.5779
++  RE=0 RC=0.196311 EG=1.110
++  CJE=316.6E-12 VJE=.436 MJE=.2878 TF=9.781E-9
++  XTF=1 VTF=10 ITF=10.00E-3 CJC=0
++  VJC=1.177 MJC=.2738 XCJC=.9 FC=.5
++  TR=7.561E-9
+.ENDS
+*$
+* Motorola 100 Volt 12 Amp Darlington Transistor  07/20/98
+*
+* connections:    Collector
+*                 |  Base
+*                 |  |  Emitter
+*                 |  |  |
+.SUBCKT Q2N6059   1  2  3
+*
+Q1 1 2 4 Q1model
+Q2 1 4 3 Q2model .9912
+D1 3 1 Dmodel
+R1 2 4 5.000E3
+R2 4 3 50
+.MODEL Dmodel D
++ IS=5.3253E-12
++ N=3.4748
++ RS=1.0000E-3
++ CJO=1.0000E-12
++ M=.3333
++ VJ=.75
++ ISR=100.00E-12
++ BV=120
++ IBV=1.00E-6
++ TT=5.0000E-9
+.MODEL Q1model NPN
++  IS=1.501E-12 BF=772.1 NF=1 VAF=100
++  IKF=.1298 ISE=163.8E-12 NE=1.998 BR=499.5
++  NR=1 VAR=100 IKR=19.98 ISC=1.536E-12
++  NC=2.997 RB=1.101 NK=.5077
++  RE=0 RC=.1498 EG=1.110
++  CJE=316.6E-12 VJE=.436 MJE=.2878 TF=16.416E-9
++  XTF=1 VTF=10 ITF=10.00E-3 CJC=189.3E-12
++  VJC=.6244 MJC=.1866 XCJC=.9 FC=.5
++  TR=13.837E-9
+.MODEL Q2model NPN
++  IS=1.501E-12 BF=772.1 NF=1 VAF=100
++  IKF=.1298 ISE=163.8E-12 NE=1.998 BR=499.5
++  NR=1 VAR=100 IKR=19.98 ISC=1.536E-12
++  NC=2.997 RB=1.101 NK=.5077
++  RE=0 RC=.1498 EG=1.110
++  CJE=316.6E-12 VJE=.436 MJE=.2878 TF=16.416E-9
++  XTF=1 VTF=10 ITF=10.00E-3 CJC=0
++  VJC=.6244 MJC=.1866 XCJC=.9 FC=.5
++  TR=13.837E-9
+.ENDS
+*$
+*-------------------------------------------------------------------------------
+* Library of diode model parameters
+*
+* This is a reduced version of PSpice's diode model library.
+* You are welcome to make as many copies of it as you find convenient.
+*
+* The parameters in this model library were derived from the data sheets for
+* each part.  Most parts were characterized using the Parts option.
+* Devices can also be characterized without Parts as follows:
+*	IS		nominal leakage current
+*	RS		for zener diodes: nominal small-signal impedance
+*			at specified operating current
+*	IB		for zener diodes: set to nominal leakage current
+*	IBV		for zener diodes: at specified operating current
+*			IBV is adjusted to give the rated zener voltage
+*
+*
+*** Zener Diodes ***
+*
+* "A" suffix zeners have the same parameters (e.g., 1N750A has the same
+* parameters as 1N750)
+*
+*
+.model D1N750	D(Is=880.5E-18 Rs=.25 Ikf=0 N=1 Xti=3 Eg=1.11 Cjo=175p M=.5516
++		Vj=.75 Fc=.5 Isr=1.859n Nr=2 Bv=4.7 Ibv=20.245m Nbv=1.6989
++		Ibvl=1.9556m Nbvl=14.976 Tbv1=-21.277u)
+*		Motorola	pid=1N750	case=DO-35
+*		89-9-18 gjg
+*		Vz = 4.7 @ 20mA, Zz = 300 @ 1mA, Zz = 12.5 @ 5mA, Zz =2.6  @ 20mA
+*$
+*** Voltage-variable capacitance diodes
+* The parameters in this model library were derived from the data sheets for
+* each part.  Each part was characterized using the Parts option.
+*
+.model MV2201   D(Is=1.365p Rs=1 Ikf=0 N=1 Xti=3 Eg=1.11 Cjo=14.93p M=.4261
++		Vj=.75 Fc=.5 Isr=16.02p Nr=2 Bv=25 Ibv=10u)
+*		Motorola	pid=MV2201	case=182-03
+*		88-09-22 bam	creation
+*** Switching Diodes ***
+*$
+.model D1N4148  D(Is=2.682n N=1.836 Rs=.5664 Ikf=44.17m Xti=3 Eg=1.11 Cjo=4p
++               M=.3333 Vj=.5 Fc=.5 Isr=1.565n Nr=2 Bv=100 Ibv=100u Tt=11.54n)
+*$
+.model MBD101   D(Is=192.1p Rs=.1 Ikf=0 N=1 Xti=3 Eg=1.11 Cjo=893.8f M=98.29m
++		Vj=.75 Fc=.5 Isr=16.91n Nr=2 Bv=5 Ibv=10u)
+*		Motorola	pid=MBD101	case=182-03
+*		88-09-22 bam	creation
+*$
+*** Power Diode ***
+.MODEL D1N4002 D (IS=14.11E-9  N=1.984  RS=33.89E-3  IKF=94.81  XTI=3
++ EG=1.110  CJO=51.17E-12  M=.2762  VJ=.3905  FC=.5  ISR=100.0E-12
++ NR=2  BV=100.1  IBV=10  TT=4.761E-6)
+*$
+*** General Purpose Fast Rectifier ***
+.model D1N914   D(Is=168.1E-21 N=1 Rs=.1 Ikf=0 Xti=3 Eg=1.11 Cjo=4p M=.3333
++               Vj=.75 Fc=.5 Isr=100p Nr=2 Bv=100 Ibv=100u Tt=11.54n)
+*$
+*
+* GENERIC FUNCTIONAL EQUIVALENT = 1N3940
+* TYPE:  DIODE
+* SUBTYPE:  RECTIFIER
+*
+* THIS IS A TEMPERATURE TRACKING MODEL WHICH  WAS CONSTRUCTED FROM
+* PRODUCT SPECIFICATION LIMITS AND MEASUREMENTS MADE  ON ONE DEVICE.
+* THE MODEL IS INTENDED FOR USE FROM -55 C TO 125 C.  NO RADIATION EFFECTS
+* ARE INCLUDED.  SIMULATIONS USING THIS MODEL REPRESENT THE RESPONSES OF
+* NOMINAL DEVICES AND SIMULATIONS ARE ACCURATE WITHIN THE LIMITS OF THE
+* PRODUCT SPECIFICATION.
+*
+.MODEL D1N3940 D(
++         IS = 4E-10
++         RS = .105
++          N = 1.48
++         TT = 8E-7
++        CJO = 1.95E-11
++         VJ = .4
++          M = .38
++         EG = 1.36
++        XTI = -8
++         KF = 0
++         AF = 1
++         FC = .9
++         BV = 600
++        IBV = 1E-4
++ )
+*
+*$
+*-------------------------------------------------------------------------------
+* Library of junction field-effect transistor (JFET) model parameters
+* This is a reduced version of PSpice's JFET model library.
+* You are welcome to make as many copies of it as you find convenient.
+* The parameters in this model library were derived from the data sheets for
+* each part.  Each part was characterized using the Parts option.
+*
+.model J2N3819	NJF(Beta=1.304m Betatce=-.5 Rd=1 Rs=1 Lambda=2.25m Vto=-3
++		Vtotc=-2.5m Is=33.57f Isr=322.4f N=1 Nr=2 Xti=3 Alpha=311.7u
++		Vk=243.6 Cgd=1.6p M=.3622 Pb=1 Fc=.5 Cgs=2.414p Kf=9.882E-18
++		Af=1)
+*		National	pid=50		case=TO92
+*		88-08-01 rmn	BVmin=25
+*$
+.model J2N4393	NJF(Beta=9.109m Betatce=-.5 Rd=1 Rs=1 Lambda=6m Vto=-1.422
++		Vtotc=-2.5m Is=205.2f Isr=1.988p N=1 Nr=2 Xti=3 Alpha=20.98u
++		Vk=123.7 Cgd=4.57p M=.4069 Pb=1 Fc=.5 Cgs=4.06p Kf=123E-18
++		Af=1)
+*		National	pid=51		case=TO18
+*		88-07-13 bam	BVmin=40
+*$
+*-------------------------------------------------------------------------------
+* Library of insulated gate bipolar transistor (IGBT) model parameters 
+*
+* The parameters in this model library were derived from data sheets.  
+*This part was characterized using the Parts program and the Optimizer program.
+*
+* created using Parts release 6.3 on 12/18/95 at 16:20
+.MODEL IXGH40N60 NIGBT
++ TAU=287.56E-9
++ KP=50.034
++ AREA=37.500E-6
++ AGD=18.750E-6
++ VT=4.1822
++ KF=.36047
++ CGS=31.942E-9
++ COXD=53.188E-9
++ VTD=2.6570
+*$
+*-------------------------------------------------------------------------------
+* Library of linear IC definitions
+* This is a reduced version of PSpice's linear subcircuit library.
+* You are welcome to make as many copies of it as you find convenient.
+*
+* The parameters in the opamp library were derived from the data sheets for
+* each part.  The macromodel used is similar to the one described in:
+*
+*	Macromodeling of Integrated Circuit Operational Amplifiers
+*	  by Graeme Boyle, Barry Cohn, Donald Pederson, and James Solomon
+*	IEEE Journal of SoliE-State Circuits, Vol. SC-9, no. 6,	Dec. 1974
+*
+* Differences from the reference (above) occur in the output limiting stage
+* which was modified to reduce internally generated currents associated with
+* output voltage limiting, as well as short-circuit current limiting.
+*
+* The opamps are modelled at room temperature and do not track changes with
+* temperature.  This library file contains models for nominal, not worst case,
+* devices.
+*
+*
+*-----------------------------------------------------------------------------
+* connections:   non-inverting input
+*                | inverting input
+*                | | positive power supply
+*                | | | negative power supply
+*                | | | | output
+*                | | | | |
+.subckt LM324    1 2 3 4 5
+*
+c1   11 12 2.887E-12
+c2    6  7 30.00E-12
+dc    5 53 dx
+de   54  5 dx
+dlp  90 91 dx
+dln  92 90 dx
+dp    4  3 dx
+egnd 99  0 poly(2) (3,0) (4,0) 0 .5 .5
+fb    7 99 poly(5) vb vc ve vlp vln 0 21.22E6 -20E6 20E6 20E6 -20E6
+ga    6  0 11 12 188.5E-6
+gcm   0  6 10 99 59.61E-9
+iee   3 10 dc 15.09E-6
+hlim 90  0 vlim 1K
+q1   11  2 13 qx
+q2   12  1 14 qx
+r2    6  9 100.0E3
+rc1   4 11 5.305E3
+rc2   4 12 5.305E3
+re1  13 10 1.845E3
+re2  14 10 1.845E3
+ree  10 99 13.25E6
+ro1   8  5 50
+ro2   7 99 25
+rp    3  4 9.082E3
+vb    9  0 dc 0
+vc    3 53 dc 1.500
+ve   54  4 dc 0.65
+vlim  7  8 dc 0
+vlp  91  0 dc 40
+vln   0 92 dc 40
+.model dx D(Is=800.0E-18 Rs=1)
+.model qx PNP(Is=800.0E-18 Bf=166.7)
+.ends
+*$
+*-----------------------------------------------------------------------------
+* connections:   non-inverting input
+*                |  inverting input
+*                |  |  positive power supply
+*                |  |  |  negative power supply
+*                |  |  |  |  output
+*                |  |  |  |  |
+.subckt uA741    1 2 3 4 5
+*
+c1   11 12 8.661E-12
+c2    6  7 30.00E-12
+dc    5 53 dx
+de   54  5 dx
+dlp  90 91 dx
+dln  92 90 dx
+dp    4  3 dx
+egnd 99  0 poly(2) (3,0) (4,0) 0 .5 .5
+fb    7 99 poly(5) vb vc ve vlp vln 0 10.61E6 -10E6 10E6 10E6 -10E6
+ga    6  0 11 12 188.5E-6
+gcm   0  6 10 99 5.961E-9
+iee  10  4 dc 15.16E-6
+hlim 90  0 vlim 1K
+q1   11  2 13 qx
+q2   12  1 14 qx
+r2    6  9 100.0E3
+rc1   3 11 5.305E3
+rc2   3 12 5.305E3
+re1  13 10 1.836E3
+re2  14 10 1.836E3
+ree  10 99 13.19E6
+ro1   8  5 50
+ro2   7 99 100
+rp    3  4 18.16E3
+vb    9  0 dc 0
+vc    3 53 dc 1
+ve   54  4 dc 1
+vlim  7  8 dc 0
+vlp  91  0 dc 40
+vln   0 92 dc 40
+.model dx D(Is=800.0E-18 Rs=1)
+.model qx NPN(Is=800.0E-18 Bf=93.75)
+.ends
+*$
+*-----------------------------------------------------------------------------
+* connections:   non-inverting input
+*                |  inverting input
+*                |  |  positive power supply
+*                |  |  |  negative power supply
+*                |  |  |  |  output
+*                |  |  |  |  |
+.subckt LF411    1  2  3  4  5
+*
+c1   11 12 4.196E-12
+c2    6  7 10.00E-12
+css  10 99 1.333E-12
+dc    5 53 dx
+de   54  5 dx
+dlp  90 91 dx
+dln  92 90 dx
+dp    4  3 dx
+egnd 99  0 poly(2) (3,0) (4,0) 0 .5 .5
+fb    7 99 poly(5) vb vc ve vlp vln 0 31.83E6 -30E6 30E6 30E6 -30E6
+ga    6  0 11 12 251.4E-6
+gcm   0  6 10 99 2.514E-9
+iss  10  4 dc 170.0E-6
+hlim 90  0 vlim 1K
+j1   11  2 10 jx
+j2   12  1 10 jx
+r2    6  9 100.0E3
+rd1   3 11 3.978E3
+rd2   3 12 3.978E3
+ro1   8  5 50
+ro2   7 99 25
+rp    3  4 15.00E3
+rss  10 99 1.176E6
+vb    9  0 dc 0
+vc    3 53 dc 1.500
+ve   54  4 dc 1.500
+vlim  7  8 dc 0
+vlp  91  0 dc 25
+vln   0 92 dc 25
+.model dx D(Is=800.0E-18 Rs=1m)
+.model jx NJF(Is=12.50E-12 Beta=743.3E-6 Vto=-1)
+.ends
+*$
+*-----------------------------------------------------------------------------
+*** Voltage comparators
+*  Copyright Cadence Design Systems, Inc. 2000 All Rights Reserved.
+*
+* The parameters in this comparator library were derived from data sheets for
+* each parts.  The macromodel was produced by the "Parts" option to PSpice.
+*
+* Although we do not use it, another comparator macro model is described in:
+*
+*	An Integrated-Circuit Comparator Macromodel
+*	  by Ian Getreu, Andreas Hadiwidjaja, and Johan Brinch
+*	IEEE Journal of Solid-State Circuits, Vol. SC-11, no. 6, Dec. 1976
+*
+* This reference covers the considerations that go into duplicating the
+* behavior of voltage comparators.
+*
+* The comparators are modelled at room temperature.  The macro model does not
+* track changes with temperature.  This library file contains models for
+* nominal, not worst case, devices.
+*
+*
+*-----------------------------------------------------------------------------
+* connections:   non-inverting input
+*                |  inverting input
+*                |  |  positive power supply
+*                |  |  |  negative power supply
+*                |  |  |  |  open collector output
+*                |  |  |  |  |  output ground
+*                |  |  |  |  |  |
+.subckt LM111    1  2  3  4  5  6
+*
+f1    9  3 v1 1
+iee   3  7 dc 100.0E-6
+vi1  21  1 dc .45
+vi2  22  2 dc .45
+q1    9 21  7 qin
+q2    8 22  7 qin
+q3    9  8  4 qmo
+q4    8  8  4 qmi
+.model qin PNP(Is=800.0E-18 Bf=833.3)
+.model qmi NPN(Is=800.0E-18 Bf=1002)
+.model qmo NPN(Is=800.0E-18 Bf=1000 Cjc=1E-15 Tr=118.8E-9)
+e1   10  6  9  4  1
+v1   10 11 dc 0
+q5    5 11  6 qoc
+.model qoc NPN(Is=800.0E-18 Bf=34.49E3 Cjc=1E-15 Tf=364.6E-12 Tr=79.34E-9)
+dp    4  3 dx
+rp    3  4 6.122E3
+.model dx  D(Is=800.0E-18 Rs=1)
+*
+.ends
+*$
+*-------------------------------------------------------------------------------
+* Library of magnetic core model parameters
+* This is a reduced version of PSpice's magnetic core library.
+* You are welcome to make as many copies of it as you find convenient.
+* The parameters in this model library were derived from the data sheets for
+* each core.  The Jiles-Atherton magnetics model is described in:
+*
+*   Theory of Ferromagnetic Hysteresis, by D C Jiles and D L Atherton,
+*   Journal of Magnetism and Magnetic Materials, vol 61 (1986) pp 48-60
+*
+* Model parameters for ferrite material (Ferroxcube 3C8) were obtained by
+* trial simulations, using the B-H curves from the manufacturer's catalog.
+* Then, the library was compiled from the data sheets for each core geometry.
+* Notice that only the geometric values change once a material is
+* characterized.
+* Example use:  K2 L2 .99 K1409PL_3C8
+* Notes:
+*   1) Using a K device (formerly only for mutual coupling) with a model
+*      reference changes the meaning of the L device: the inductance value
+*      becomes the number of turns for the winding.
+*   2) K devices can "get away" with specifying only one inductor, as in the
+*      example above, to simulate power inductors.
+* Example circuit file:
+*+-----------------------------------------------------------------------------
+*|Demonstration of power inductor B-H curve
+*|
+*|* To view results with Probe (B-H curve):
+*|* 1) Add Trace for B(K1)
+*|* 2) set X-axis variable to H(K1)
+*|*
+*|* Probe x-axis unit is Oersted
+*|* Probe y-axis unit is Gauss
+*|*
+*|.tran .1 4
+*|igen0 0 1 sin(0 .1amp 1Hz 0)	; Generator: starts with 0.1 amp sinewave, then
+*|igen1 0 1 sin(0 .1amp 1Hz 1)	;   +0.1 amps, starting at 1 second
+*|igen2 0 1 sin(0 .2amp 1Hz 2)	;   +0.2 amps, starting at 2 seconds
+*|igen3 0 1 sin(0 .8amp 1Hz 3)	;   +0.4 amps, starting at 3 seconds
+*|RL 1 0 1ohm			; generator source resistance
+*|L1 1 0 20			; inductor with 20 turns
+*|K1 L1 .9999 K528T500_3C8	; Ferroxcube torroid core
+*|.model K528T500_3C8	CORE(Ms=415.2K A=44.82 C=.4112 K=25.74)
+*|+			AREA=1.17 PATH=8.49)
+*|.options itl5=0
+*|.probe
+*|.end
+*+-----------------------------------------------------------------------------
+*** Ferroxcube pot cores: 3C8 material
+*
+.model K3019PL_3C8	Core(MS=415.2K A=44.82 C=.4112 K=25.74
++			Area=1.38 Path=4.52)
+*$
+*** Ferroxcube square cores: 3C8 material
+*
+.model KRM8PL_3C8    Core(MS=415.2K A=44.82 C=.4112 K=25.74
++			Area=.630 Path=3.84)
+*$
+*** Ferroxcube toroid cores: 3C8 material
+*
+.model K502T300_3C8	Core(MS=415.2K A=44.82 C=.4112 K=25.74
++			Area=.371 Path=7.32)
+*$
+.model K528T500_3C8	Core(MS=415.2K A=44.82 C=.4112 K=25.74
++		   Area=1.17 Path=8.49)
+*$
+*-------------------------------------------------------------------------------
+* Library of MOSFET model parameters (for "power" MOSFET devices)
+*
+* This is a reduced version of PSpice's power MOSFET model library.
+*   You are welcome to make as many copies of it as you find convenient.
+*
+* The parameters in this model library were derived from the data sheets for
+* each part.  Each part was characterized using the Parts option.
+* Device can also be characterized without Parts as follows:
+*	LEVEL		Set to 3 (short-channel device).
+*	TOX		Determined from gate ratings.
+*	L, LD, W, WD	Assume L=2u.  Calculate from input capacitance.
+*	XJ, NSUB	Assume usual technology.
+*	IS, RD, RB	Determined from "source-drain diode forward voltage"
+*			specification or curve (Idr vs. Vsd).
+*	RS		Determine from Rds(on) specification.
+*	RDS		Calculated from Idss specification or curves.
+*	VTO, UO, THETA	Determined from "output characteristics" curve family
+*			(Ids vs. Vds, stepped Vgs).
+*	ETA, VMAX, CBS	Set for null effect.
+*	CBD, PB, MJ	Determined from "capacitance vs. Vds" curves.
+*	RG		Calculate from rise/fall time specification or curves.
+*	CGSO, CGDO	Determined from gate-charge, turn-on/off delay and
+*			rise time specifications.
+*
+* NOTE:	when specifying the instance of a device in your circuit file:
+*
+*	BE SURE to have the source and bulk nodes connected together, as this
+*	is the way the real device is constructed.
+*
+*	DO NOT include values for L, W, AD, AS, PD, PS, NRD, or NDS.
+*	The PSpice default values for these parameters are taken into account
+*	in the library model statements.  Of course, you should NOT reset
+*	the default values using the .OPTIONS statement, either.
+*
+* Example use:	M17	15 23 7 7	IRF150
+*
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+* The "power" MOSFET device models benefit from relatively complete specifi-
+* cation of static and dynamic characteristics by their manufacturers.  The
+* following effects are modeled:
+*	- DC transfer curves in forward operation,
+*	- gate drive characteristics and switching delay,
+*	- "on" resistance,
+*	- reverse-mode "body-diode" operation.
+*
+* The factors not modeled include:
+*	- maximum ratings (eg. high-voltage breakdown),
+*	- safe operating area (eg. power dissipation),
+*	- latch-up,
+*	- noise.
+*
+* For high-current switching applications, we advise that you include
+* series inductance elements, for the source and drain, in your circuit file.
+* In doing so, voltage spikes due to di/dt will be modeled.  According to the
+* 1985 International Rectifier databook, the following case styles have lead
+* inductance values of:
+*	TO-204 (modified TO-3)	source = 12.5nH		drain = 5.0nH
+*	TO-220			source =  7.5nH		drain = 3.5-4.5nH
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+.model IRF150	NMOS(Level=3 Gamma=0 Delta=0 Eta=0 Theta=0 Kappa=0 Vmax=0 Xj=0
++		Tox=100n Uo=600 Phi=.6 Rs=1.624m Kp=20.53u W=.3 L=2u Vto=2.831
++	        Rd=1.031m Rds=444.4K Cbd=3.229n Pb=.8 Mj=.5 Fc=.5 Cgso=9.027n
++		Cgdo=1.679n Rg=13.89 Is=194E-18 N=1 Tt=288n)
+*		Int'l Rectifier	pid=IRFC150	case=TO3
+*		88-08-25 bam	creation
+*$
+.model IRF9140	PMOS(Level=3 Gamma=0 Delta=0 Eta=0 Theta=0 Kappa=0 Vmax=0 Xj=0
++		Tox=100n Uo=300 Phi=.6 Rs=70.6m Kp=10.15u W=1.9 L=2u Vto=-3.67
++		Rd=60.66m Rds=444.4K Cbd=2.141n Pb=.8 Mj=.5 Fc=.5 Cgso=877.2p
++		Cgdo=369.3p Rg=.811 Is=52.23E-18 N=2 Tt=140n)
+*		Int'l Rectifier  pid=IRFC9140	case=TO3
+*		88-08-25 bam	creation
+subckt 7403  A B Y
++	optional: DPWR=$G_DPWR DGND=$G_DGND
++	params: MNTYMXDLY=0 IO_LEVEL=0
+U1 nand(2) DPWR DGND
++	A B   Y
++	D_03 IO_STD_OC MNTYMXDLY={MNTYMXDLY} IO_LEVEL={IO_LEVEL}
+.ends
+*$
+* 74121  Non-retriggerable Monostable Multivibrator w/Schmitt-Trigger Inputs
+*
+* The TTL Data Book, Vol 2, 1985, TI
+* rbh 06/14/91 Created
+* rbh 06/02/92 Added dummy R/C pins
+*
+* Notes:
+* 1. The RINT, CEXT, and REXT/CEXT pins are not functional.  The output
+*    pulse width, tw(out), is controlled with the PULSE subcircuit
+*    parameter.  Note that this means that the pulse width is FIXED for
+*    the duration of the simulation.  You can specify this value in the
+*    subcircuit call, e.g. X1 ... 74121 PARAMS: PULSE=1us
+* 2. Instead of a fixed minimum input pulse width (50ns), this model requires
+*    the input pulse to be at least as long as the propagation delay through
+*    the device.  Input pulses which are shorter than this value produce
+*    an X which is tw(out) in duration.
+.subckt 74121 A1 A2 B RINT CEXT REXT/CEXT Q Qbar
++	optional: DPWR=$G_DPWR DGND=$G_DGND
++	params: PULSE=30ns IO_LEVEL=0 MNTYMXDLY=0
+*
+R1 RINT 0 100MEG
+R2 RINT 0 100MEG
+R3 CEXT 0 100MEG
+R4 CEXT 0 100MEG
+R5 REXT/CEXT 0 100MEG
+R6 REXT/CEXT 0 100MEG
+*
+UA nand(2) DPWR DGND
++ 	A1 A2  A
++	D0_GATE IO_STD_ST IO_LEVEL={IO_LEVEL}
+UAdly dlyline DPWR DGND
++	A A_dly
++	D_121_A_dly IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigger nand(2) DPWR DGND
++	A_dly B  Trigger
++	D0_GATE IO_STD_ST IO_LEVEL={IO_LEVEL}
+UStart stim(1,1) DPWR DGND
++	Clear
++	IO_STM
++	0S	0
++	1NS	Z
+*
+UOutputs jkff(1) DPWR DGND
++	$D_HI Clear Trigger $D_HI $D_LO Q_ Q_Bar
++	D_121_Outputs  IO_STD MNTYMXDLY={MNTYMXDLY}
+*
+UQ_Buf buf DPWR DGND
++	Q_ Q_Buf
++	D0_GATE IO_STD
+UQx isx(1) DPWR DGND
++	q_   q_x
++	D0_GATE IO_STD
+UQ0 is0(1) DPWR DGND
++	q_   q_0
++	D0_GATE IO_STD
+UQ0_Bar inv DPWR DGND
++	q_0 q0_bar
++	D0_GATE IO_STD
+UQ_Rise or(2) DPWR DGND
++	Q_Buf q_x  q_rise
++	D0_GATE IO_STD
+UTrigdly dlyline DPWR DGND
++	Trigger trigdly
++	D_121_trigdly IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigx isx(1) DPWR DGND
++	trigdly trigx
++	D0_GATE IO_STD
+UTrigx_bar inv DPWR DGND
++	trigx trigx_fall
++	D0_GATE IO_STD
+UReset0 nand(2) DPWR DGND
++	q_rise trigx_fall reset0
++	D0_GATE IO_STD
+UClear jkff(1) dpwr dgnd
++	q0_bar $d_hi reset0 $d_lo $d_hi Clear $d_nc
++	D_121_pulse IO_STD MNTYMXDLY={MNTYMXDLY}
+*
+* Output buffers
+*
+UQ inv DPWR DGND
++	q_bar Q
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+UQBar buf DPWR DGND
++	q_bar QBAR
++	D_121_Qbar IO_STD IO_LEVEL={IO_LEVEL} MNTYMXDLY={MNTYMXDLY}
+*
+* Local timing model
+*
+.model D_121_pulse ueff(
++	tpclkqhlmn={pulse} tpclkqhlty={pulse} tpclkqhlmx={pulse}
++	)
+.ends 74121
+*$
+.model D_121_Outputs ueff (
++	twclklty=35ns	twclklmx=55ns
++	tpclkqlhty=35ns	tpclkqlhmx=55ns
++	tpclkqhlty=35ns	tpclkqhlmx=55ns
++	)
+*$
+.model D_121_A_dly udly (
++	dlyty=10ns	dlymx=15ns
++	)
+*$
+.model D_121_trigdly udly (
++	dlyty=35ns	dlymx=55ns
++	)
+*$
+.model D_121_Qbar ugate (
++	tplhty=5ns	tplhmx=10ns
++	tphlty=5ns	tphlmx=10ns
++	)
+*--------
+*$
+* 74122  Retriggerable Monostable Multivibrator
+*
+* The TTL Data Book, Vol 2, 1985, TI
+* rbh 06/14/91 Created
+* rbh 06/02/92 Added dummy R/C pins
+*
+* Notes:
+* 1. The RINT, CEXT, and REXT/CEXT pins are not functional.  The output
+*    pulse width, tw(out), is controlled with the PULSE subcircuit
+*    parameter.  Note that this means that the pulse width is FIXED for
+*    the duration of the simulation.  You can specify this value in the
+*    subcircuit call, e.g. X1 ... 74122 PARAMS: PULSE=1us
+* 2. Instead of a fixed minimum input pulse width (40ns), this model requires
+*    the input pulse to be at least as long as the propagation delay through
+*    the device.  Input pulses which are shorter than this value produce
+*    an X which is tw(out) in duration.
+* 3. Some prop delays are off by a few nanoseconds.
+.subckt 74122 CLRBAR A1 A2 B1 B2 RINT CEXT REXT/CEXT Q QBAR
++	optional: DPWR=$G_DPWR DGND=$G_DGND
++	params: PULSE=45ns IO_LEVEL=0 MNTYMXDLY=0
+*
+R1 RINT 0 100MEG
+R2 RINT 0 100MEG
+R3 CEXT 0 100MEG
+R4 CEXT 0 100MEG
+R5 REXT/CEXT 0 100MEG
+R6 REXT/CEXT 0 100MEG
+*
+UA nand(2) DPWR DGND
++ 	A1 A2  A
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+UAdly dlyline DPWR DGND
++	A A_dly
++	D_122_A_dly IO_STD MNTYMXDLY={MNTYMXDLY}
+*
+UTrigger and(3) DPWR DGND
++	A_dly B1 B2 Trigger
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+*
+UTrigBar inv DPWR DGND
++	Trigger Trig_Bar
++	D0_GATE IO_STD
+UStart stim(1,1) DPWR DGND
++	Clear
++	IO_STM
++	0ns	0
++	1ns	Z
+UClear and(2) DPWR DGND
++	CLRBAR Reset Clear
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+UOutputs jkff(1) DPWR DGND
++	$D_HI Clear Trig_Bar $D_HI $D_LO Q QBAR
++	D_122_Outputs  IO_STD IO_LEVEL={IO_LEVEL} MNTYMXDLY={MNTYMXDLY}
+*
+UTrigdly dlyline DPWR DGND
++	Trigger trigdly
++	D_122_trigdly IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigx isx(1) DPWR DGND
++	trigdly trigx
++	D0_GATE IO_STD
+UTrigx_bar inv DPWR DGND
++	trigx trigx_bar
++	D0_GATE IO_STD
+UTrigx_barbar inv DPWR DGND
++	trigx_bar trigx_barbar
++	D_122_tedge IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigx_fall and(2) DPWR DGND
++	trigx_barbar trigx_bar trigx_fall
++	D0_GATE IO_STD
+UReset0 nor(2) DPWR DGND
++	trigdly trigx_fall reset0
++	D0_GATE IO_STD
+UTrig0 is0(1) DPWR DGND
++	Trigger Trig_0
++	D0_GATE IO_STD
+UTrig0_Bar inv DPWR DGND
++	Trig_0 Trig0_Bar
++	D_122_edge IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigPreset or(2) DPWR DGND
++	Trig_0 Trig0_Bar TrigPreset
++	D0_GATE IO_STD
+UReset jkff(1)  DPWR DGND
++	TrigPreset $d_hi reset0 $d_lo $d_hi reset $d_nc
++	D_122_pulse IO_STD MNTYMXDLY={MNTYMXDLY}
+*
+* Local timing model
+*
+.model D_122_pulse ueff(
++	tpclkqhlmn={pulse-1ns+1ns}
++	tpclkqhlty={pulse-1ns+1ns}	;-1 for trigdly, +1=tp(trig)-tp(reset)
++	tpclkqhlmx={pulse-1ns+1ns}
++	)
+.ends 74122
+*$
+.model D_122_A_dly udly (
++	dlyty=3ns	dlymx=5ns
++	)
+*$
+.model D_122_Outputs ueff (
++	twclklty=19ns	twclklmx=28ns
++	tpclkqlhty=19ns	tpclkqlhmx=28ns
++	tpclkqhlty=27ns	tpclkqhlmx=36ns
++	tppcqhlty=18ns	tppcqhlmx=27ns
++	tppcqlhty=26ns	tppcqlhmx=35ns
++	)
+*$
+.model D_122_trigdly udly (
++	dlymn=1ns	dlyty=1ns	dlymx=1ns
++	)
+*$
+.model D_122_edge ugate(
++	tplhmn=1ns	tplhty=1ns	tplhmx=1ns
++	)
+*$
+.model D_122_tedge ugate(
++	tphlmn=1ns	tphlty=1ns	tphlmx=1ns
++	)
+*--------
+*$
+* 74123  Retriggerable Monostable Multivibrator
+*
+* The TTL Data Book, Vol 2, 1985, TI
+* rbh 06/14/91 Created
+* rbh 06/02/92 Added dummy R/C pins
+*
+* Notes:
+* 1. The CEXT and REXT/CEXT pins are not functional.  The output
+*    pulse width, tw(out), is controlled with the PULSE subcircuit
+*    parameter.  Note that this means that the pulse width is FIXED for
+*    the duration of the simulation.  You can specify this value in the
+*    subcircuit call, e.g. X1 ... 74123 PARAMS: PULSE=1us
+* 2. Instead of a fixed minimum input pulse width (40ns), this model requires
+*    the input pulse to be at least as long as the propagation delay through
+*    the device.  Input pulses which are shorter than this value produce
+*    an X which is tw(out) in duration.
+* 3. Some prop delays are off by a few nanoseconds.
+.subckt 74123 CLRBAR A B CEXT REXT/CEXT Q QBAR
++	optional: DPWR=$G_DPWR DGND=$G_DGND
++	params: PULSE=45ns IO_LEVEL=0 MNTYMXDLY=0
+*
+R1 CEXT 0 100MEG
+R2 CEXT 0 100MEG
+R3 REXT/CEXT 0 100MEG
+R4 REXT/CEXT 0 100MEG
+*
+UABar inv DPWR DGND
++	A ABar
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+UAdly dlyline DPWR DGND
++	ABar A_dly
++	D_123_A_dly IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigger and(2) DPWR DGND
++	A_dly B  Trigger
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+*
+UTrigBar inv DPWR DGND
++	Trigger Trig_Bar
++	D0_GATE IO_STD
+UStart stim(1,1) DPWR DGND
++	Clear
++	IO_STM
++	0ns	0
++	1ns	Z
+UClear and(2) DPWR DGND
++	CLRBAR Reset Clear
++	D0_GATE IO_STD IO_LEVEL={IO_LEVEL}
+UOutputs jkff(1) DPWR DGND
++	$D_HI Clear Trig_Bar $D_HI $D_LO Q QBAR
++	D_123_Outputs  IO_STD IO_LEVEL={IO_LEVEL} MNTYMXDLY={MNTYMXDLY}
+*
+UTrigdly dlyline DPWR DGND
++	Trigger trigdly
++	D_123_trigdly IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigx isx(1) DPWR DGND
++	trigdly trigx
++	D0_GATE IO_STD
+UTrigx_bar inv DPWR DGND
++	trigx trigx_bar
++	D0_GATE IO_STD
+UTrigx_barbar inv DPWR DGND
++	trigx_bar trigx_barbar
++	D_123_tedge IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigx_fall and(2) DPWR DGND
++	trigx_barbar trigx_bar trigx_fall
++	D0_GATE IO_STD
+UReset0 nor(2) DPWR DGND
++	trigdly trigx_fall reset0
++	D0_GATE IO_STD
+UTrig0 is0(1) DPWR DGND
++	Trigger Trig_0
++	D0_GATE IO_STD
+UTrig0_Bar inv DPWR DGND
++	Trig_0 Trig0_Bar
++	D_123_edge IO_STD MNTYMXDLY={MNTYMXDLY}
+UTrigPreset or(2) DPWR DGND
++	Trig_0 Trig0_Bar TrigPreset
++	D0_GATE IO_STD
+UReset jkff(1)  DPWR DGND
++	TrigPreset $d_hi reset0 $d_lo $d_hi reset $d_nc
++	D_123_pulse IO_STD MNTYMXDLY={MNTYMXDLY}
+*
+* Local timing model
+*
+.model D_123_pulse ueff(
++	tpclkqhlmn={pulse-1ns+1ns}
++	tpclkqhlty={pulse-1ns+1ns}	;-1 for trigdly, +1=tp(trig)-tp(reset)
++	tpclkqhlmx={pulse-1ns+1ns}
++	)
++	)
+.ends 74123
+*$
+.model D_123_A_dly udly (
++	dlyty=3ns	dlymx=5ns
++	)
+*$
+.model D_123_Outputs ueff (
++	twclklty=19ns	twclklmx=28ns
++	tpclkqlhty=19ns	tpclkqlhmx=28ns
++	tpclkqhlty=27ns	tpclkqhlmx=36ns
++	tppcqhlty=18ns	tppcqhlmx=27ns
++	tppcqlhty=26ns	tppcqlhmx=35ns
++	)
+*$
+.model D_123_trigdly udly (
++	dlymn=1ns	dlyty=1ns	dlymx=1ns
++	)
+*$
+.model D_123_edge ugate(
++	tplhmn=1ns	tplhty=1ns	tplhmx=1ns
++	)
+*$
+.model D_123_tedge ugate(
++	tphlmn=1ns	tphlty=1ns	tphlmx=1ns
++	)
+*---------
+*$
+*
+*--------------------------------------------------------------------
+* Library of optocoupler models
+* This is a reduced version of PSpice's Opto-coupler components library.
+*   You are welcome to make as many copies of it as you find convenient.
+* The parameters in this model library were derived from the data sheets for
+* each part.
+*
+*.model 4N25
+* 6-pin DIP: pin #1   #2   #4   #5   #6
+*                |    |    |    |    |
+.subckt A4N25  	pin1 pin2 pin4 pin5 pin6	params: rel_CTR=1
+*		Motorola	pid=4N25
+*		88-01-04 pwt
+*		88-01-18 pwt	rework Cje approximation
+* The data sheet used for this model is from Motorola: it was the most
+* complete for DC and switching parameters, and is was easy to find the
+* component IR-LED and phototransistor as separate devices for further
+* specifications.
+d_MainLED	pin1 pin2	MainLED
+d_PhotoLED	pin1 1		PhotoLED .001
+v_PhotoLED	1 pin2		0
+f_TempComp	0 2		v_PhotoLED 1.7
+r_TempComp	2 0		TempComp {rel_CTR}
+g_BaseSrc	5 6 2 0		.9
+q_PhotoBJT	5 6 4		PhotoBJT
+r_C		5 pin5		.1
+r_B		6 pin6		.1
+r_E		4 pin4		.1
+* Since active devices dominate pin-to-pin capacitance on each "side" of the
+* optocoupler, isolation is modeled by identical capacitances and resistances
+* linked to a common point; this gives isolation of .5pF and 1E+11 ohms
+c_1		pin1 7		.4p
+r_1		pin1 7		.12T
+c_2		pin2 7		.4p
+r_2		pin2 7		.12T
+c_4		pin4 7		.4p
+r_4		pin4 7		.12T
+c_5		pin5 7		.4p
+r_5		pin5 7		.12T
+c_6		pin6 7		.4p
+r_6		pin6 7		.12T
+* Similar to Motorola MLED15.
+.model MainLED  D(Is=10.01e-21 Rs=2.049 Ikf=11.84 N=1.053 Xti=3 Cjo=40p M=.34
++                Vj=.75 Isr=30n Nr=3.8 Bv=6 Ibv=100u Tt=.5u)
+* Models photon generation: same as MainLED except no AC effects, no breakdown.
+.model PhotoLED D(Is=1.1p Rs=.66 Ikf=30m N=1.9 Xti=3 Cjo=0   M=.34 Vj=.75
++		Isr=30n Nr=3.8 Bv=0 Tt=0)
+* Temperature compensation for system: 1.38x @ -55'C, .54x @ +100'C, all @ 10mA
+* Note: the photo BJT has its own temperature corrections, which must be kept
+* as the transistor is electrically available.
+.model TempComp	RES(R=1 Tc1=-11.27m Tc2=43.46u)
+* Similar to Motorola MDR3050; Hfe=325 @ Ic=500uA, Vce=5V
+* Use beta variation (w/Parts) to model change in current-transfer ratio (CTR).
+* Hand adjust reverse beta (Br) to match saturation characteristics.
+* Set Isc to model dark current.
+* Hand adjust Cjc to match fall time @ Ic=10mA (which yields rise time, too).
+* Hand adjust reverse transit-time (Tr) to match storage time @ Ic=10mA.
+* Delay time set by LED I-V and C-V characteristics; set Cje to 25% of Cjc,
+* inspection of phototransistor chip layouts show the emitter area is 20%-25%
+* that of the collector area.  The same layouts show that base resistance is
+* made negligible by design; also, the operating currents are small.
+* Hand adjust forward transit-time (Tf) to match MDR3050 pulse data.  Check
+* against 4N25 frequency response (Fig 11, 12).
+.model PhotoBJT NPN(Is=10f Xti=3 Vaf=60
++		Bf=400 Ne=3.75 Ise=580p Ikf=.26 Xtb=1.5
++		Br=.04 Nc=2    Isc=3.5n
++		Cjc=10p  Mjc=.3333 Vjc=.75 Tr=88u
++		Cje=2.5p Mje=.3333 Vje=.75 Tf=1.5n)
+.ends
+*$
+*-------------------------------------------------------------------------------
+* Library of Thyristor (SCR and Triac) models
+* This is a reduced version of PSpice's Thyristor components library.
+* You are welcome to make as many copies of it as you find convenient.
+* Library of SCR models
+* NOTE:  This library requires the "Analog Behavioral Modeling"
+*        option available with PSpice.  A model developed without
+*        Behavioral Modeling was found to be very slow and not
+*        very robust.
+* This macromodel uses a controlled switch as the basic SCR
+* structure.  In all cases, the designer should use
+* the manufacturer's data book for actual part selection.
+* The required parameters were derived from data sheet (Motorola)
+* information on each part.  When available, only "typical"
+* parameters are used (except for Idrm which is always
+* a "max" value).  If a "typical" parameter is not available,
+* a "min" or "max" value may be used in which case a comment is
+* made in the library.
+* The SCRs are modeled at room temperature and do not track
+* changes with temperature.  Note that Vdrm is specified by the
+* manufacturer as valid over a temperature range.  Also, in
+* nearly all cases, dVdt and Toff are specified by the
+* manufacturer at approximately 100 degrees C.  This results in a
+* model which is somewhat "conservative" for a room temperature
+* model.
+* The parameter dVdt (when available from the date sheet) is used
+* to model the Critical Rate of Rise of Off-State Voltage.  If
+* not specified, dVdt is defaulted to 1000 V/microsecond.
+* A side effect of this model is that the turn-on current, Ion,
+* is determined by Vtm/(Ih*Vdrm).  Vtm is also used as the
+* holding voltage.
+*
+.SUBCKT Scr anode gate cathode PARAMS:
++ Vdrm=400v     Vrrm=400v     Idrm=10u
++ Ih=6ma        dVdt=5e7
++ Igt=5ma       Vgt=0.7v
++ Vtm=1.7v      Itm=24
++ Ton=1u        Toff=15u
+* Where:
+* Vdrm =>  Forward breakover voltage
+* Vrrm =>  Reverse breakdown voltage
+* Idrm =>  Peak blocking current
+* Ih   =>  Holding current
+* dVdt =>  Critical value for dV/dt triggering
+* Igt  =>  Gate trigger current
+* Vgt  =>  Gate trigger voltage
+* Vtm  =>  On-state voltage
+* Itm  =>  On-state current
+* Ton  =>  Turn-on time
+* Toff =>  Turn-off time
+* Main conduction path
+Scr      anode   anode0  control 0       Vswitch ; controlled switch
+Dak1     anode0  anode2  Dakfwd  OFF             ; SCR is initially off
+Dka      cathode anode0  Dkarev  OFF
+VIak     anode2  cathode                         ; current sensor
+* dVdt Turn-on
+Emon     dvdt0   0       TABLE {v(anode,cathode)} (0 0) (2000 2000)
+CdVdt    dvdt0   dvdt1   100pfd                  ; displacement current
+Rdlay    dvdt1   dvdt2   1k
+VdVdt    dvdt2   cathode DC 0.0
+EdVdt    condvdt 0       TABLE {i(vdVdt)-100p*dVdt}  (0 0 ) (.1m 10)
+RdVdt    condvdt 0       1meg
+* Gate
+Rseries  gate    gate1   {(Vgt-0.65)/Igt}
+Rshunt   gate1   gate2   {0.65/Igt}
+Dgkf     gate1   gate2   Dgk
+VIgf     gate2   cathode                         ; current sensor
+* Gate Turn-on
+Egate1   gate4   0       TABLE {i(Vigf)-0.95*Igt} (0 0) (1m 10)
+Rgate1   gate4   0       1meg
+Egon1    congate 0       TABLE {v(gate4)*v(anode,cathode)} (0 0) (10 10)
+Rgon1    congate 0       1meg
+* Main Turn-on
+EItot    Itot    0       TABLE {i(VIak)+5E-5*i(VIgf)/Igt} (0 0) (2000 2000)
+RItot    Itot    0       1meg
+Eprod    prod    0       TABLE {v(anode,cathode)*v(Itot)} (0 0) (1 1)
+Rprod    prod    0       1meg
+Elin     conmain 0       TABLE
++        {10*(v(prod) - (Vtm*Ih))/(Vtm*Ih)} (0 0) (2 10)
+Rlin     conmain 0       1meg
+* Turn-on/Turn-off control
+Eonoff   contot  0       TABLE
++        {v(congate)+v(conmain)+v(condvdt)} (0 0) (10 10)
+* Turn-on/Turn-off delays
+Rton    contot  dlay1   825
+Dton    dlay1   control Delay
+Rtoff   contot  dlay2   {290*Toff/Ton}
+Dtoff   control dlay2   Delay
+Cton    control 0       {Ton/454}
+* Reverse breakdown
+Dbreak  anode   break1  Dbreak
+Dbreak2 cathode break1  Dseries
+* Controlled switch model
+.MODEL Vswitch vswitch
++ (Ron = {(Vtm-0.7)/Itm}, Roff = {Vdrm*Vdrm/(Vtm*Ih)},
++  Von = 5.0,             Voff = 1.5)
+* Diodes
+.MODEL  Dgk     D       (Is=1E-16 Cjo=50pf Rs=5)
+.MODEL  Dseries D       (Is=1E-14)
+.MODEL  Delay   D       (Is=1E-12 Cjo=5pf  Rs=0.01)
+.MODEL  Dkarev  D       (Is=1E-10 Cjo=5pf  Rs=0.01)
+.MODEL  Dakfwd  D       (Is=4E-11 Cjo=5pf)
+.MODEL  Dbreak  D       (Ibv=1E-7 Bv={1.1*Vrrm} Cjo=5pf Rs=0.5)
+* Allow the gate to float if required
+Rfloat  gate    cathode 1e10
+.ENDS
+*$
+.SUBCKT 2N1595          anode gate cathode
+* "Typical" parameters
+X1 anode gate cathode Scr PARAMS:
++ Vdrm=50v   Vrrm=50v     Ih=5ma       Vtm=1.1v     Itm=1
++ dVdt=1e9   Igt=2ma      Vgt=.7v      Ton=0.8u     Toff=10u
++ Idrm=10u
+* 90-5-18    Morotola     DL137, Rev 2, 3/89
+.ENDS
+*$
+* Library of Triac models
+* NOTE:  This library requires the "Analog Behavioral Modeling"
+*        option available with PSpice.
+* This macromodel uses two controlled switches as the basic triac
+* structure.  The model was developed to provide firing in all
+* four quadrants.  It should be noted, however, that the library
+* contains parts which the manufacturer has guaranteed will fire
+* in 4 quadrants, 3 quadrants or 2 quadrants.  Therefore, the
+* designer should always use the manufacturer's data book for
+* part selection.
+* The required parameters were derived from data sheet (Motorola)
+* information on each part.  When available, only "typical"
+* parameters are used (except for Idrm which is always
+* a "max" value).  If a "typical" parameter is not available,
+* a "min" or "max" value may be used in which case a comment is
+* made in the library.
+* The triacs are modeled at room temperature and do not track
+* changes with temperature.  Note that Vdrm is specified by the
+* manufacturer as valid over a temperature range.  Also, in
+* nearly all cases, dVdt is specified by the manufacturer at
+* approximately 100 degrees C.  This results in a model which
+* is somewhat "conservative" for a room temperature model.
+* The parameter dVdt (when available from the date sheet) is used
+* to model the Critical Rate of Rise of Off-State Voltage.  If
+* not specified, dVdt is defaulted to 1000 V/microsecond.  The
+* Critical Rate of Rise of Commutation Voltage is not modeled.
+* It is generally good practice to use an RC snubber network
+* across the triac to limit the commutating dvdt to a value below
+* the maximum allowable rating (see manufacturer's data sheet and
+* application notes).  Also, note that the turn-off time is
+* assumed to be zero.
+*
+.SUBCKT Triac MT2 gate MT1 PARAMS:
++ Vdrm=400v     Idrm=10u
++ Ih=6ma        dVdt=50e6
++ Igt=20ma      Vgt=0.9v
++ Vtm=1.3v      Itm=17
++ Ton=1.5u
+* Where:
+* Vdrm =>  Forward breakover voltage
+* Idrm =>  Peak blocking current
+* Ih   =>  Holding current [MT2(+)]
+* dVdt =>  Critical value for dV/dt triggering
+* Igt  =>  Gate trigger current [MT2(+),G(-)]
+* Vgt  =>  Gate trigger voltage [MT2(+),G(-)]
+* Vtm  =>  On-state voltage
+* Itm  =>  On-state current
+* Ton  =>  Turn-on time
+* Main conduction path
+Striac   MT2     MT20    cntrol   0       Vswitch ; controlled switch
+Dak1     MT20    MT22    Dak      OFF             ; triac is initially off
+VIak     MT22    MT1                              ; current sensor
+Striacr  MT2     MT23    cntrolr  0       Vswitch ; controlled switch
+Dka1     MT21    MT23    Dak      OFF             ; triac is initially off
+VIka     MT1     MT21                             ; reverse current sense
+* dVdt Turn-on
+Emon     dvdt0   0       TABLE {ABS(V(MT2,MT1))} (0 0) (2000 2000)
+CdVdt    dvdt0   dvdt1   100pfd                  ; displacement current
+Rdlay    dvdt1   dvdt2   1k
+VdVdt    dvdt2   MT1     DC 0.0
+EdVdt    condvdt 0       TABLE {i(vdVdt)-100p*dVdt}  (0 0 ) (.1m 10)
+RdVdt    condvdt 0       1meg
+* Gate
+Rseries  gate    gate1   {(Vgt-0.65)/Igt}
+Rshunt   gate1   gate2   {0.65/Igt}
+Dgkf     gate1   gate2   Dgk
+Dgkr     gate2   gate1   Dgk
+VIgf     gate2   MT1     DC 0.0                  ; current sensor
+* Gate Turn-on
+Egate    congate 0       TABLE {(ABS(i(VIgf))-0.95*Igt)} (0 0) (1m 10)
+Rgate    congate 0       1meg
+* Holding current, holding voltage (Quadrant I)
+Emain1   main1   0       TABLE {i(VIak)-Ih+5e-3*i(VIgf)/Igt} (0 0) (.1m 1)
+Rmain1   main1   0       1meg
+Emain2   main2   0       TABLE {v(MT2,MT1)-(Ih*Vtm/Itm)} (0 0) (.1m 1)
+Rmain2   main2   0       1meg
+Emain3   cnhold  0       TABLE {v(main1,0)*v(main2,0)} (0 0 (1 10)
+Rmain3   cnhold  0       1meg
+* Holding current, holding voltage (Quadrant III)
+Emain1r  main1r   0       TABLE {i(VIka)-Ih-5e-3*i(VIgf)/Igt} (0 0) (.1m 1)
+Rmain1r  main1r   0       1meg
+Emain2r  main2r   0       TABLE {v(MT1,MT2)-(Ih*Vtm/Itm)} (0 0) (.1m 1)
+Rmain2r  main2r   0       1meg
+Emain3r  cnholdr  0       TABLE {v(main1r,0)*v(main2r,0)} (0 0 (1 10)
+Rmain3r  cnholdr  0       1meg
+* Main
+Emain4   main4    0       table {(1.0-ABS(i(VIgf))/Igt)} (0 0) (1 1)
+Rmain4   main4    0       1meg
+Emain5   cnmain   0       table {v(mt2,mt1)-1.05*Vdrm*v(main4)} (0 0) (1 10)
+Rmain5   cnmain   0       1meg
+Emain5r  cnmainr  0       table {v(mt1,mt2)-1.05*Vdrm*v(main4)} (0 0) (1 10)
+Rmain5r  cnmainr  0       1meg
+* Turn-on/Turn-off control (Quadrant I )
+Eonoff   contot  0       TABLE
++        {v(cnmain)+v(congate)+v(cnhold)+v(condvdt)} (0 0) (10 10)
+* Turn-on/Turn-off delays (Quadrant I)
+Rton     contot  dlay1   825
+Dton     dlay1   cntrol  Delay
+Rtoff    contot  dlay2   {2.9E-3/Ton}
+Dtoff    cntrol  dlay2   Delay
+Cton     cntrol  0       {Ton/454}
+* Turn-on/Turn-off control (Quadrant III)
+Eonoffr  contotr 0       TABLE
++        {v(cnmainr)+v(congate)+v(cnholdr)+v(condvdt)} (0 0) (10 10)
+* Turn-on/Turn-off delays (Quadrant III)
+Rtonr    contotr dlayr1   825
+Dtonr    dlayr1  cntrolr  Delay
+Rtoffr   contotr dlayr2   {2.9E-3/Ton}
+Dtoffr   cntrolr dlayr2   Delay
+Ctonr    cntrolr 0        {Ton/454}
+* Controlled switch model
+.MODEL Vswitch vswitch
++ (Ron = {(Vtm-0.7)/Itm}, Roff = {1.75E-3*Vdrm/Idrm},
++  Von = 5.0,             Voff = 1.5)
+* Diodes
+.MODEL  Dgk     D         (Is=1E-16 Cjo=50pf Rs=5)
+.MODEL  Delay   D         (Is=1E-12 Cjo=5pf  Rs=0.01)
+.MODEL  Dak     D         (Is=4E-11 Cjo=5pf)
+* Allow the gate to float if required
+Rfloat  gate    MT1 1e10
+.ENDS
+*$
+.SUBCKT 2N5444          MT2 gate MT1
+* Min and Max parameters
+X1 MT2 gate MT1 Triac PARAMS:
++ Vdrm=200v  Idrm=10u     Ih=70ma      dVdt=50e6   Ton=1u
++ Igt=70ma   Vgt=2.0v     Vtm=1.65v    Itm=56
+* 90-5-18    Morotola     DL137, Rev 2, 3/89
+.ENDS
+*$
+* Mixed a/d model for Cmos version of 555.
+*
+* Notes from Cadence: This model is not supported by the Basics+ package.
+* The Delay Line model that this model uses is not supported by the Basics+
+* package.
+*
+.subckt 555d 1 2 3 4 5 6 7 8
++ params:maxfreq=3e6
+r1 8     5    13k
+r2 5     botm 13k
+r3 botm  0    13k
+m1 7 qb 0 0 nchan l=2u w=1000u
+otop 6     5  cmp dgtlnet=r io_std
+obot botm  2  cmp dgtlnet=s io_std
+ud1 dlyline 8 1 s sd dlymod io_std
+ud2 dlyline 8 1 r rd dlymod io_std
+u1 srff(1) 8 1 strt 4 hi sd rd 3 qb t_srff io_555
+uhigh stim(1,1) 8 1  hi io_stm 0s 1
+ustrt stim(1,1) 8 1  strt io_stm 0s 0 1ns 1
+.model nchan nmos cgbo=1p cgdo=1p cgso=1p
+.model dlymod udly(dlymn={.5/maxfreq}
++ dlyty={.5/maxfreq}
++ dlymx={0.5/maxfreq})
+.model cmp doutput(
++ s0name=0 s0vlo=-500 s0vhi=0
++ s1name=1 s1vlo=   0 s1vhi=500)
+.model io_555 uio (
++	drvh=96.4	drvl=104
++	atod1="atod_555"	atod2="atod_555"
++	atod3="atod_555"	atod4="atod_555"
++	dtoa1="dtoa_555"	dtoa2="dtoa_555"
++	dtoa3="dtoa_555"	dtoa4="dtoa_555")
+.model t_srff ugff (tppcqlhty=120ns)
+.ends
+*|* DIGITAL 555 CONNECTED AS AN ASTABLE
+*|.LIB EVAL.LIB
+*|.OPTIONS ITL5=0 ITL1=500
+*|.PARAM CVAL=20000P
+*|VRESET 4 0 PULSE(0 5 1NS .1U .1U 1 2)
+*|C2 OUT 0 10P
+*|VCC 8 0 5
+*|RA 8 7 4700
+*|RB 7 6 2200
+*|C1 6 0 {CVAL}
+*|X1 0 6 OUT 4 5 6 7 8 555D
+*|.TRAN 1N 800U
+*|.PROBE
+*|.END
+*$
+.subckt atod_555  a d  dpwr dgnd
++	params: capacitance=0
+*
+o0  a dgnd do555 dgtlnet=d io_std
+c1  a 0 {capacitance+0.1pf}
+.ends
+*$
+.subckt dtoa_555  d a  dpwr dgnd
++	params: drvl=0 drvh=0 capacitance=0
+*
+n1  a dgnd dpwr din555 dgtlnet=d io_std
+c1  a 0 {capacitance+.1pf}
+.ends
+*$
+.model din555 dinput (
++	s0name="0"	s0tsw=0.7ns	s0rlo=100	s0rhi=1meg
++	s1name="1"	s1tsw=0.7ns	s1rlo=1meg	s1rhi=300
++	s2name="x"	s2tsw=0.7ns	s2rlo=200	s2rhi=200
++	s3name="r"	s3tsw=0.7ns	s3rlo=200	s3rhi=200
++	s4name="f"	s4tsw=0.7ns	s4rlo=200	s4rhi=200
++	s5name="z"	s5tsw=0.7ns	s5rlo=200k	s5rhi=200k
++	)
+*$
+.model DO555 doutput (
++	s0name="X"	s0vlo=0.8	s0vhi=2.0
++	s1name="0"	s1vlo=-1.5	s1vhi=0.8
++	s2name="R"	s2vlo=0.8	s2vhi=1.4
++	s3name="R"	s3vlo=1.3	s3vhi=2.0
++	s4name="X"	s4vlo=0.8	s4vhi=2.0
++	s5name="1"	s5vlo=2.0	s5vhi=50.0
++	s6name="F"	s6vlo=1.3	s6vhi=2.0
++	s7name="F"	s7vlo=0.8	s7vhi=1.4
++	)
+*$
+*
+* Coupled and uncoupled models for board parasitic support
+*
+* Coupled, equal, distributed
+.subckt P/T2C in1 in2 out1 out2 params: len=1 r=0 l=1 c=1 g=0 lm=1 cm=1
+t1 in1 0 out1 0 len={len} l={l} c={c} r={r} g={g}
+t2 in2 0 out2 0 len={len} l={l} c={c} r={r} g={g}
+k1 t1 t2 lm={lm} cm={cm}
+.ends
+*$
+* Coupled, equal, lumped T-section
+.subckt P/L2C in1 in2 out1 out2 params: len=1 r=0 l=1 c=1 g=0 lm=1 cm=1
+r1 in1 1 {len*r}
+l1 1 2 {len*l/2}
+c1 2 0 {len*(c)}
+l2 2 out1 {len*l/2}
+r3 in2 3 {len*r}
+l3 3 4 {len*l/2}
+c2 4 0 {len*(c)}
+l4 4 out2 {len*l/2}
+k1 l1 l3 {lm/l}
+k2 l2 l4 {lm/l}
+c3 2 4 {len*cm}
+.ends
+*$
+* Coupled, unequal, distributed (asymmetrical)
+.subckt P/T2C_A in1 in2 out1 out2
++ params: len=1 l1=1 c1=1 r1=0 g1=0 l2=1 c2=1 r2=0 g2=0 lm=1 cm=1
+t1 in1 0 out1 0 len={len} l={l1} c={c1} r={r1} g={g1}
+t2 in2 0 out2 0 len={len} l={l2} c={c2} r={r2} g={g2}
+k1 t1 t2 lm={lm} cm={cm}
+.ends
+*$
+* Coupled, unequal, lumped T-section
+.subckt P/L2C_A in1 in2 out1 out2
++ params: len=1 l1=1 c1=1 r1=0 g1=0 l2=1 c2=1 r2=0 g2=0 lm=1 cm=1
+r1 in1 1 {len*r1}
+l1 1 2 {len*l1/2}
+c1 2 0 {len*(c1)}
+l2 2 out1 {len*l1/2}
+r3 in2 3 {len*r2}
+l3 3 4 {len*l2/2}
+c2 4 0 {len*(c2)}
+l4 4 out2 {len*l2/2}
+k1 l1 l3 {lm/l1}
+k2 l2 l4 {lm/l2}
+c3 2 4 {len*cm}
+.ends
+*$
+* Uncoupled (single), distributed
+.subckt P/TS in out params: len=1 r=0 l=1 c=1 g=0
+t1  in 0 out 0 len={len} l={l} r={r} c={c} g={g}
+.ends
+*$
+* Uncoupled (single), lumped
+.subckt P/LS in out params: len=1 r=0 l=1 c=1 g=0
+r1  in  1   {len*r}
+l1  1   2   {len*l/2}
+c1  2   0   {len*c/2}
+l2  2  out  {len*l/2}
+.ends
+*$
+*-----------------------------------------------------------------------------
+* Lossy transmission line coupling .subckt models
+*
+* The following set of subcircuits, t2coupled ... t5coupled, can 
+* be used to model coupling between lossy transmission lines.
+* The coupling is realized using the method descibed in "Efficient Transient
+* Simulation of Lossy Interconnect", by J.S. Roychowdhury and D.O. Pederson,
+* published in the Proc. DAC 91, and is subject to the following limitations:
+*
+* 1) all of the line parameters, C, L, R, G, Cm, & Lm, must be the same for
+*    all of the lines in the set;
+* 2) coupling is modeled across adjacent lines only;
+* 3) edge effects are neglected as a result of the first limitation.
+*
+*
+* Subckt t2coupled for 2 coupled transmission lines
+*
+*                  Line 1 Input
+*                   |  Line 2 Input
+*                   |   |  Line 1 Output
+*                   |   |   |  Line 2 Output
+*                   |   |   |   |
+.subckt t2coupled   1   2   3   4   params: r=0 l=-1 g=0 c=-1 lm=0 cm=0 len=-1
+t1     1   0   3   0   r={r} l={l} g={g} c={c} len={len}
+t2     2   0   4   0   r={r} l={l} g={g} c={c} len={len}
+k12   t1  t2  lm={lm} cm={cm}
+.ends t2coupled
+*$
+* Subckt t3coupled for 3 coupled transmission lines
+*
+*                  Line 1 Input
+*                   |  Line 2 Input
+*                   |   |  Line 3 Input
+*                   |   |   |  Line 1 Output
+*                   |   |   |   |  Line 2 Output
+*                   |   |   |   |   |  Line 3 Output
+*                   |   |   |   |   |   |
+.subckt t3coupled   1   2   3   4   5   6   params: r=0 l=-1 g=0 c=-1 lm=0 cm=0 len=-1
+t1     1   0   4   0   r={r} l={l} g={g} c={c} len={len}
+t2     2   0   5   0   r={r} l={l} g={g} c={c} len={len}
+t3     3   0   6   0   r={r} l={l} g={g} c={c} len={len}
+k12   t1  t2  lm={lm} cm={cm}
+k23   t2  t3  lm={lm} cm={cm}
+.ends t3coupled
+*$
+*-------------------------------------------------------------------------------
+* Library of PCI82430 I/O Buffer Model
+* This is a reduced version of PSpice's IBIS components library.
+* You are welcome to make as many copies of it as you find convenient.
+*                                         
+*  Component:           S82374EB ESC
+*  Signals:             BALE,BE#[3:0],CHRDY,CMD#,EOP,EX16#,EX32#,EXRDY,IORC#,
+*                       IOWC#,LA[31:2],M16#,MRDC#,MSBURST#,MWTC#,M/IO,NOWS#,
+*                       REFRESH#,RSTDDRV,SA0,SA1,SBHE#,SD[7:0],SMRDC#,SMWTCH#,
+*                       SPKR,START#,W/R# (Note:  EXRDY,EX16#,CHRDY,EX32#,
+*                       M16#, and NOWS# are open drain signals, and can only
+*                       be driven low.)
+*
+*  Buffer Type          O  
+*  ESC2 Revision:       1.0
+*
+*  Model type:          best case:  min ramp time, min package parasitics, 
+*                       min die capacitance, max output current
+*
+*
+*
+*                 	Input	Output	VCC	GND	Enable
+.subckt ESC2_B 	        100  	200 	300 	400 	500
++ PARAMS:
++ R_pkg = 226m          ; package bond wire and lead resistance at output
++ L_pkg = 8.5n          ; package bond wire and lead inductance at output
++ C_pkg = 1.9p          ; package bond wire and lead capacitance at output
++ C_comp = 2p           ; die capacitance at output
++ dVdt_r = {5.25/0.45}  ; output rise time in V/ns
++ dVdt_f = {5.25/0.44}  ; output fall time in V/ns
+*
+*
+******* Parameters *******
+.PARAM Rtr = { (1/dVdt_r) * 1e5}
+.PARAM Rtf = { (1/dVdt_f) * 1e5 }
+.PARAM Vinh = 1.56v             ; Input high threshold voltage
+.PARAM Vinl = 1.47v		; Input low threshold voltage
+*
+******* Input and Enable Threshld **********************
+Ein_thr_dn 800 0 VALUE = {TABLE(V(100,400),
++ Vinl, 0,
++ Vinl+1e-6, 1)}
+*
+Ein_thr_up 810 0 VALUE = {TABLE (V(100,400),
++ Vinh-1e-6, 1,
++ Vinh, 0)}
+*
+Ein_thr 530 0 VALUE = {TABLE (V(500,400),
++ Vinl, 0,
++ Vinh, 1)}
+*
+Edn 820 0 VALUE = {LIMIT(V(800,0), 0, V(530,0))}
+Eup 830 0 VALUE = {LIMIT(V(810,0), 0, V(530,0))}
+Rdum1 530 0 10meg
+Rdum2 800 0 10meg
+Rdum3 810 0 10meg
+Rdum4 820 0 10meg
+Rdum5 830 0 10meg
+*
+******** Rise & Fall Time *******
+Gramp_dn 840 400a VALUE={v(840,400a) / (abs(v(840,400) * Rtf
++ + V(820,400) * 1e9) + 1e-4) }
+rgramp_dn 400a 400 0.1
+Cramp_dn 840 400 0.01p
+*
+GRchrg_dn 840 220 VALUE={v(840,220)/(abs(v(830,0) * 1e+7)+1e-4)}
+cchrg_dn 840 220 1f
+rchrg_dn 840 220 10meg
+*
+Gramp_up 300a 850 VALUE = {v(300a,850) / (abs(v(300,850) * Rtr +
++ V(830,400) * 1e9) + 1e-4)}
+Vramp_up 300a 300 10u
+Cramp_up 850 300 0.01pf
+*
+ERchrg_up 850 220b VALUE = {I(Vchrg_up) * (abs(v(820,0) * 1e9) + 1e-4)}
+Vchrg_up 220b 220 0
+cchrg_up 850 220 5f
+*
+******* Output Pulldown *******
+Esw_dn 240 0 VALUE = { TABLE(v(840),
++ 4.5-1e-5, 1,
++ 4.5, 0) }
+*
+Rout_dn 220 400 1
+Gadj_dn 220 400 VALUE = {V(280,220)}
+Elim_dn 280 400 VALUE = {LIMIT(v(260,0), -v(240,0)*1e3, v(240,0)*1e3)}
+Epwl_dn 260 0 TABLE {v(220,840)}
++ -5.0v, -216m
++ -4.0v, -212m
++ -3.0v, -207m
++ -2.0v, -189m
++ -1.0v, -126m
++ 0.0v, 0m
++ 0.5v, 71m
++ 1.0v, 126m
++ 1.5v, 163m
++ 2.0v, 189m
++ 2.5v, 202m
++ 3.0v, 207m
++ 3.5v, 210m
++ 4.0v, 212m
++ 4.5v, 214m
++ 5.0v, 216m
++ 10.0v, 230m
+Rdum6 240 0 10meg
+Rdum7 260 0 10meg
+Rdum8 280 400 10meg
+*
+******* Output clamp to GND *******
+Ggnd_out 220 400 TABLE {v(220,400)}
++ -5.0v, -1725m
++ -1.0v, -110m
++ -0.9v, -70m
++ -0.8v, -35m
++ -0.7v, -5m
++ -0.6v, 0m
++ -0.5v, 0m
++ -0.4v, 0m
++ 0.0v, 0m
+*
+******* Output pullup *******
+Esw_up 230 0 VALUE = {TABLE(v(850),
++ 0.5, 0,
++ 0.5+1e-5, 1 )}
+*
+Rout_up 300 220 1
+Gadj_up 300 220 VALUE={v(220,270)}
+Elim_up 300 270 VALUE={LIMIT(v(0,250), -v(230)*1e3, v(230)*1e3)}
+Epwl_up 250 0 TABLE={v(850,220)}
++ -5.0v, 135m
++ -4.0v, 127m
++ -3.0v, 113m
++ -2.0v, 91m
++ -1.0v, 53m
++ 0.0v, 0m
++ 0.5v, -28m
++ 1.0v, -53m
++ 1.5v, -75m
++ 2.0v, -91m
++ 2.5v, -105m
++ 3.0v, -113m
++ 3.5v, -121m
++ 4.0v, -127m
++ 4.5v, -131m
++ 5.0v, -135m
++ 10.0v, -155m
+Rdum9 230 0 10meg
+Rdum10 250 0 10meg
+Rdum11 270 300 10meg
+*
+******* Output clamp to VCC ********
+GVcc_out 220 300 TABLE {V(300,220)}
++ -5.0v, 970m
++ -1.0v, 74m
++ -0.9v, 52m
++ -0.8v, 30m
++ -0.7v, 4m
++ -0.6v, 0m
++ -0.5v, 0m
++ -0.4v, 0m
++ 0.0v, 0m
+*
+******* Output Package *******
+Cout_pkg 200 400 {C_pkg}
+Rout_pkg 200 210 {R_pkg}
+Lout_pkg 210 220 {L_pkg}
+Rout_snb 210 220 100
+Cout_die 220 400 {C_comp}
+******* End of Subcircuit *******
+.ENDS
+*$
+*
+.SUBCKT CD4016B 1 2 3 4 5
+* Specifications from SGS and Harris data books
+* 1 ANALOG INPUT
+* 2 ANALOG OUTPUT
+* 3 CONTROL
+* 4 VDD (POSITIVE SUPPLY)
+* 5 VSS (NEGATIVE SUPPLY)
+*
+RINP  3 11 1500
+D1 11 4 D1
+D2 5 11 D1
+*
+M1 12 11 4 4 MP4016A L=8U W=48U  AD=500P AS=500P PD=110U PS=110U
+M2 12 11 5 5 MN4016A L=8U W=16U  AD=160P AS=160P PD=48U PS=48U
+*
+M1A 13 12 4 4 MP4016A L=8U W=96U  AD=500P AS=500P PD=110U PS=110U
+M2A 13 12 5 5 MN4016A L=8U W=32U  AD=160P AS=160P PD=48U PS=48U
+*
+M3 1 12 2 4  MP4016A L=8U W=360U AD=3600P AS=3600P PD=900U PS=900U
+M4 2 13 1 5  MN4016A L=8U W=120U AD=1080P AS=1080P PD=286U PS=286U
+*
+.MODEL MN4016A NMOS LEVEL=2 VTO=1.45 TOX=1000E-10 NSUB=4.7E16
++XJ=3U LD=2U UO=625 UCRIT=1E5 UEXP=0.45 UTRA=0.25 RSH=15 
++NEFF=2.5 VMAX=1E6 CGBO=3E-10 CGDO=10E-10 CGSO=10E-10 CJSW=2F
++NFS=4E12  GAMMA=2.2 LAMBDA=0.02
+*
+.MODEL MP4016A PMOS LEVEL=2 VTO=-1.5 TOX=1000E-10 NSUB=7.6E15
++XJ=3U LD=1.5U UO=225 UCRIT=3E5 UEXP=.5 UTRA=0.25 RSH=15
++NEFF=2.5 VMAX=1E5 CGBO=3E-10 CGDO=10E-10 CGSO=10E-10 CJSW=1F
++NFS=1E12  GAMMA=1.8 LAMBDA=0.02
+* 
+.MODEL D1 D IS=923.17E-18 RS=10 CJO=1.0000E-12 M=.3333  VJ=.75
++ ISR=100.00E-12  BV=35.357  IBV=10U  TT=5.0000E-9
+.ENDS
+*
+* End of library file
+*$
