@@ -3,6 +3,7 @@
 #include <string.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "PWM/pwm.h"
 
 #include "driver/gpio.h" //gpio
 
@@ -10,43 +11,13 @@
 #include "hal/adc_types.h" //adc
 #include "esp_adc/adc_cali.h" //adc
 
-#include "driver/ledc.h"//PWM
-
-#define PWM_TIMER              LEDC_TIMER_1
-#define PWM_MODE               LEDC_HIGH_SPEED_MODE
-#define PWM_CLK                LEDC_AUTO_CLK
-#define PWM_OUTPUT_IO          23
-#define PWM_CHANNEL            LEDC_CHANNEL_0
-#define PWM_DUTY_RES           LEDC_TIMER_10_BIT 
-#define PWM_DUTY               512 
-#define PWM_FREQUENCY          10000 
-
-static void PWM_init(void)
-{
-    ledc_timer_config_t pwm_timer = {
-        .speed_mode       = PWM_MODE,
-        .duty_resolution  = PWM_DUTY_RES,
-        .timer_num        = PWM_TIMER,
-        .freq_hz          = PWM_FREQUENCY,  
-        .clk_cfg          = PWM_CLK
-    };
-    ESP_ERROR_CHECK(ledc_timer_config(&pwm_timer));
-
-    ledc_channel_config_t pwm_channel = {
-        .speed_mode     = PWM_MODE,
-        .channel        = PWM_CHANNEL,
-        .timer_sel      = PWM_TIMER,
-        .intr_type      = 0,
-        .gpio_num       = PWM_OUTPUT_IO,
-        .duty           = 0, 
-        .hpoint         = 0
-    };
-    ledc_channel_config(&pwm_channel);
-}
+#define PWM_DUTY_RES    10 //1023
+#define PWM_PIN         23
+#define PWM_FREQUENCY   10000
 
 void app_main() 
 {
-    PWM_init();
+    PWM_init(PWM_DUTY_RES, PWM_PIN, PWM_FREQUENCY);
 
     int adc_read = 0;
     int voltage = 0;
@@ -86,8 +57,7 @@ void app_main()
         adc_cali_raw_to_voltage(cali_handle, adc_read, &voltage);
         printf("ADC value = %d mV\n", voltage); 
 
-        ledc_set_duty(PWM_MODE, PWM_CHANNEL, adc_read);
-        ledc_update_duty(PWM_MODE, PWM_CHANNEL);
+        PWM_duty_cycle(adc_read);
 
         duty_cycle = ((float)adc_read/1023.0) * 100.0;
 
