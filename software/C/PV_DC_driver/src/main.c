@@ -7,6 +7,7 @@
 #include <ADC/adc.h>
 
 #include "driver/gpio.h" //gpio
+#include "esp_rom_sys.h"
 
 #define PWM_DUTY_RES                10      //1023
 #define PWM_PIN                     23      //GPIO23
@@ -18,38 +19,63 @@
 #define ADC_INPUT_VOLTAGE_PIN       5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_OUTPUT_VOLTAGE_PIN      4       //ADC_CHANNEL_5(GPIO32)
 
+float get_current_value(void)
+{
+    u_int8_t sample_counter = 0;
+    int buffer = 0;
+    float result = 0.0;
+
+    for(sample_counter = 0 ; sample_counter < 100 ; sample_counter++)
+    {
+        if(gpio_get_level(GPIO_NUM_22) == 1)
+        {
+            buffer = buffer + adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
+        }
+        else
+        {
+           sample_counter--; 
+        }
+
+        esp_rom_delay_us(10); 
+    }
+
+    result = buffer/100.0;
+    result = (result - 2500.0)*-1.0;
+    result = result * 0.707;
+    result = result / 1000;
+
+    return result;
+
+}
+
 void app_main() 
 {
+    printf("START1 \n");
+
     PWM_init(PWM_DUTY_RES, PWM_PIN, PWM_FREQUENCY);
+
+    printf("START2 \n");
 
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
     set_adc_pin(ADC_INPUT_VOLTAGE_PIN, ADC_OUTPUT_VOLTAGE_PIN);
    
-    int adc_read1 = 0;
-    int adc_read2 = 0;
-    int voltage1 = 0;
-    int voltage2 = 0;
-
-    float duty_cycle = 0.0;
+    //int voltage1 = 0;
+    
+    printf("START3 \n");
+    gpio_set_direction(GPIO_NUM_22, GPIO_MODE_INPUT);
 
     while(1)
     {
-        adc_read1 = adc_read_raw(ADC_INPUT_VOLTAGE_PIN);
-        adc_read2 = adc_read_raw(ADC_OUTPUT_VOLTAGE_PIN);
+        //voltage1 = adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
+        
+        //printf("ADC value = %d mV\n", voltage1);
+       
+        printf("START4 \n");
 
-        voltage1 = adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
-        voltage2 = adc_read_voltage(ADC_OUTPUT_VOLTAGE_PIN);
-         
-        printf("ADCpin1 value = %d \n", adc_read1); 
-        printf("ADCpin2 value = %d \n", adc_read2);
+        PWM_duty_cycle(512);
 
-        printf("ADC value = %d mV\n", voltage1);
-        printf("ADC value = %d mV\n", voltage2);
+        printf("RMS value = %f \n", get_current_value());
 
-        PWM_duty_cycle(adc_read1);
-        duty_cycle = ((float)adc_read1/1023.0) * 100.0;
-        printf("Duty_cycle = %f %%\n ", duty_cycle); 
-
-        vTaskDelay(10);
+        vTaskDelay(100);
     }
 }
