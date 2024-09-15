@@ -19,59 +19,71 @@
 #define ADC_INPUT_VOLTAGE_PIN       5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_OUTPUT_VOLTAGE_PIN      4       //ADC_CHANNEL_5(GPIO32)
 
+bool measure_flag = false;
+
+void measure_status(void *arg)
+{
+    if(gpio_get_level(GPIO_NUM_22) == true)
+    {
+        measure_flag = true;
+    }
+    else
+    {
+        measure_flag = false;
+    }
+}
+
 float get_current_value(void)
 {
-    u_int8_t sample_counter = 0;
-    int buffer = 0;
+    uint16_t sample_counter = 0;
+    uint32_t buffer = 0;
     float result = 0.0;
 
-    for(sample_counter = 0 ; sample_counter < 100 ; sample_counter++)
+    gpio_set_direction(GPIO_NUM_22, GPIO_MODE_INPUT);
+    gpio_install_isr_service(0);
+    gpio_set_intr_type(GPIO_NUM_22, GPIO_INTR_ANYEDGE);
+    gpio_isr_handler_add(GPIO_NUM_22, measure_status, NULL);
+
+    while(1)
     {
-        if(gpio_get_level(GPIO_NUM_22) == 1)
+        if(measure_flag == true && sample_counter < 1000)
         {
             buffer = buffer + adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
+            sample_counter++;
+
+            esp_rom_delay_us(10);
+        }
+        else if(sample_counter >= 1000)
+        {
+            gpio_intr_disable(GPIO_NUM_22);
+            gpio_uninstall_isr_service();
+            gpio_reset_pin(GPIO_NUM_22);
+
+            result = buffer/1000;
+            result = (result - 2500)*-1.0;
+            result = result * 0.707; 
+
+            return result;
         }
         else
         {
-           sample_counter--; 
+            buffer = buffer;
+            sample_counter = sample_counter;
         }
-
-        esp_rom_delay_us(10); 
-    }
-
-    result = buffer/100.0;
-    result = (result - 2500.0)*-1.0;
-    result = result * 0.707;
-    result = result / 1000;
-
-    return result;
-
+    }  
 }
-
+ 
 void app_main() 
 {
-    printf("START1 \n");
-
     PWM_init(PWM_DUTY_RES, PWM_PIN, PWM_FREQUENCY);
-
-    printf("START2 \n");
 
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
     set_adc_pin(ADC_INPUT_VOLTAGE_PIN, ADC_OUTPUT_VOLTAGE_PIN);
    
-    //int voltage1 = 0;
+  
     
-    printf("START3 \n");
-    gpio_set_direction(GPIO_NUM_22, GPIO_MODE_INPUT);
-
     while(1)
     {
-        //voltage1 = adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
-        
-        //printf("ADC value = %d mV\n", voltage1);
-       
-        printf("START4 \n");
-
         PWM_duty_cycle(512);
 
         printf("RMS value = %f \n", get_current_value());
