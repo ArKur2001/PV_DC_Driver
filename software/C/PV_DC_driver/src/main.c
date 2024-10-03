@@ -5,89 +5,71 @@
 #include <freertos/task.h>
 #include "PWM/pwm.h"
 #include <ADC/adc.h>
+#include "BUTTONS/buttons.h"
 
 #include "driver/gpio.h" //gpio
 #include "esp_rom_sys.h"
+#include <math.h>
 
-#define PWM_DUTY_RES                10      //1023
+#define PWM_DUTY_RES_BIT            7       //128
+#define PWM_DUTY_RES                128
 #define PWM_PIN                     23      //GPIO23
 #define PWM_FREQUENCY               10000
 
 #define ADC_UNIT                    0       //ADC_UNIT_1
 #define ADC_BITWIDTH                10      //ADC_BITWIDTH_10
 #define ADC_ATTEN                   3       //ADC_ATTEN_DB_11
-#define ADC_INPUT_VOLTAGE_PIN       5       //ADC_CHANNEL_5(GPIO33)
-#define ADC_OUTPUT_VOLTAGE_PIN      4       //ADC_CHANNEL_5(GPIO32)
+#define ADC_SAMPLES_NUMBER          20      //ADC_ATTEN_DB_11
+#define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
+#define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
 
-bool measure_flag = false;
+#define BUTTON_0_GPIO               27      //GPIO23     
+#define BUTTON_1_GPIO               14      //GPIO23
 
-void measure_status(void *arg)
+int duty_cycle = 64;
+
+float get_current_value(int voltage, float duty_value, float pwm_duty_resolution)
 {
-    if(gpio_get_level(GPIO_NUM_22) == true)
-    {
-        measure_flag = true;
-    }
-    else
-    {
-        measure_flag = false;
-    }
+    float duty_cycle = 0.0;
+    float RMS_value = 0.0;
+
+    duty_cycle = duty_value / pwm_duty_resolution;
+
+    RMS_value = (2500 - voltage) / (sqrt(duty_cycle));
+
+    return RMS_value;
 }
 
-float get_current_value(void)
+void app_main() 
 {
-    uint16_t sample_counter = 0;
-    uint32_t buffer = 0;
-    float result = 0.0;
+    PWM_init(PWM_DUTY_RES_BIT, PWM_PIN, PWM_FREQUENCY);
 
-    gpio_set_direction(GPIO_NUM_22, GPIO_MODE_INPUT);
-    gpio_install_isr_service(0);
-    gpio_set_intr_type(GPIO_NUM_22, GPIO_INTR_ANYEDGE);
-    gpio_isr_handler_add(GPIO_NUM_22, measure_status, NULL);
+    ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
+    set_adc_pin(ADC_CURRENT_PIN, ADC_VOLTAGE_PIN);
 
+    Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO);
+   
     while(1)
     {
-        if(measure_flag == true && sample_counter < 1000)
+        if(eButton_Read(BUTTON_0) == PRESSED)
         {
-            buffer = buffer + adc_read_voltage(ADC_INPUT_VOLTAGE_PIN);
-            sample_counter++;
-
-            esp_rom_delay_us(10);
+            duty_cycle++;
         }
-        else if(sample_counter >= 1000)
+        else if(eButton_Read(BUTTON_1) == PRESSED)
         {
-            gpio_intr_disable(GPIO_NUM_22);
-            gpio_uninstall_isr_service();
-            gpio_reset_pin(GPIO_NUM_22);
-
-            result = buffer/1000;
-            result = (result - 2500)*-1.0;
-            result = result * 0.707; 
-
-            return result;
+            duty_cycle--;
         }
         else
         {
-            buffer = buffer;
-            sample_counter = sample_counter;
+            duty_cycle = duty_cycle;
         }
-    }  
-}
- 
-void app_main() 
-{
-    PWM_init(PWM_DUTY_RES, PWM_PIN, PWM_FREQUENCY);
+        
+        PWM_duty_cycle(duty_cycle);
 
-    ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
-    set_adc_pin(ADC_INPUT_VOLTAGE_PIN, ADC_OUTPUT_VOLTAGE_PIN);
-   
-  
-    
-    while(1)
-    {
-        PWM_duty_cycle(512);
+        printf("duty_cycle = %d \n",duty_cycle);
+        //printf("ADC value = %d \n", adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER));
+        printf("RMS value = %f \n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
 
-        printf("RMS value = %f \n", get_current_value());
-
-        vTaskDelay(100);
+        vTaskDelay(10);
     }
 }
