@@ -17,9 +17,9 @@
 #define PWM_FREQUENCY               10000
 
 #define ADC_UNIT                    0       //ADC_UNIT_1
-#define ADC_BITWIDTH                10      //ADC_BITWIDTH_10
+#define ADC_BITWIDTH                12      //ADC_BITWIDTH_12
 #define ADC_ATTEN                   3       //ADC_ATTEN_DB_11
-#define ADC_SAMPLES_NUMBER          20      //ADC_ATTEN_DB_11
+#define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
 
@@ -28,14 +28,14 @@
 
 int duty_cycle = 64;
 
-float get_current_value(int voltage, float duty_value, float pwm_duty_resolution)
+double get_current_value(int voltage, float duty_value, float pwm_duty_resolution)
 {
-    float duty_cycle = 0.0;
-    float RMS_value = 0.0;
+    double duty_cycle = 0.0;
+    double RMS_value = 0.0;
 
     duty_cycle = duty_value / pwm_duty_resolution;
 
-    RMS_value = (2500 - voltage) / (sqrt(duty_cycle));
+    RMS_value = (1800 - voltage) / (sqrt(duty_cycle));
 
     return RMS_value;
 }
@@ -66,10 +66,11 @@ void app_main()
         
         PWM_duty_cycle(duty_cycle);
 
+        vTaskDelay(50);
+
         printf("duty_cycle = %d \n",duty_cycle);
         //printf("ADC value = %d \n", adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER));
         printf("RMS value = %f \n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
 
-        vTaskDelay(10);
     }
 }
