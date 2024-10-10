@@ -1,15 +1,14 @@
-#include <stdio.h>
-#include <inttypes.h>
 #include <string.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <inttypes.h>
+#include <stdio.h>
 #include "PWM/pwm.h"
 #include <ADC/adc.h>
 #include "BUTTONS/buttons.h"
+#include <MEASUREMENTS/measurements.h>
 
 #include "driver/gpio.h" //gpio
-#include "esp_rom_sys.h"
-#include <math.h>
 
 #define PWM_DUTY_RES_BIT            7       //128
 #define PWM_DUTY_RES                128
@@ -26,19 +25,11 @@
 #define BUTTON_0_GPIO               27      //GPIO23     
 #define BUTTON_1_GPIO               14      //GPIO23
 
+#define VOLTAGE_MULTIPLIER          20      //voltage_divider_value
+#define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref
+#define CURRENT_REF_LVL             900     //current_potentiometer_ref
+
 int duty_cycle = 64;
-
-double get_current_value(int voltage, float duty_value, float pwm_duty_resolution)
-{
-    double duty_cycle = 0.0;
-    double RMS_value = 0.0;
-
-    duty_cycle = duty_value / pwm_duty_resolution;
-
-    RMS_value = (1800 - voltage) / (sqrt(duty_cycle));
-
-    return RMS_value;
-}
 
 void app_main() 
 {
@@ -48,6 +39,8 @@ void app_main()
     set_adc_pin(ADC_CURRENT_PIN, ADC_VOLTAGE_PIN);
 
     Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO);
+
+    measurements_init(VOLTAGE_REF_LVL, VOLTAGE_MULTIPLIER, CURRENT_REF_LVL);
    
     while(1)
     {
@@ -66,11 +59,10 @@ void app_main()
         
         PWM_duty_cycle(duty_cycle);
 
-        vTaskDelay(50);
+        vTaskDelay(25);
 
         printf("duty_cycle = %d \n",duty_cycle);
-        //printf("ADC value = %d \n", adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER));
-        printf("RMS value = %f \n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
-
+        printf("Voltage RMS value = %f V\n", get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER)));
+        printf("Current RMS value = %f A\n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
     }
 }
