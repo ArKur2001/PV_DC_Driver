@@ -1,6 +1,6 @@
 LTspice 24.0.12 for Windows
 Circuit: * C:\Users\Mr_Dusza\Desktop\Git\PV_DC_Driver\simulations\VOLTAGE_CURRENT_MEASUREMENTS.asc
-Start Time: Wed Oct  9 20:06:00 2024
+Start Time: Sun Oct 13 17:15:00 2024
 solver = Normal
 Maximum thread count: 12
 
@@ -43,5 +43,5 @@ tnom = 27
 temp = 27
 method = modified trap
 .step pwm_duty=100
-Total elapsed time: 1.285 seconds.
+Total elapsed time: 1.345 seconds.
 
