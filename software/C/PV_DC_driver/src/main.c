@@ -26,8 +26,8 @@
 #define BUTTON_1_GPIO               14      //GPIO23
 
 #define VOLTAGE_MULTIPLIER          20      //voltage_divider_value
-#define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref
-#define CURRENT_REF_LVL             900     //current_potentiometer_ref
+#define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
+#define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
 int duty_cycle = 64;
 
@@ -62,7 +62,7 @@ void app_main()
         vTaskDelay(25);
 
         printf("duty_cycle = %d \n",duty_cycle);
-        printf("Voltage RMS value = %f V\n", get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER)));
+        printf("Voltage RMS value = %f V\n", get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
         printf("Current RMS value = %f A\n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
     }
 }

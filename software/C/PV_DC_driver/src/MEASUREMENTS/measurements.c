@@ -12,11 +12,14 @@ void measurements_init(uint16_t voltage_v_ref, uint16_t voltage_multiplier, uint
     current_reference_level = 2 * current_v_ref;
 }
 
-double get_voltage_value(int voltage)
+double get_voltage_value(int voltage, float duty_value, float pwm_duty_resolution)
 {
+    double duty_cycle = 0.0;
     double RMS_voltage_value = 0.0;
 
-    RMS_voltage_value = ((voltage_reference_level - voltage) * voltage_multiplier_val) / 1000.0;
+    duty_cycle = duty_value / pwm_duty_resolution;
+
+    RMS_voltage_value = (((voltage_reference_level - voltage) * voltage_multiplier_val) * (sqrt(duty_cycle))) / 1000.0;
 
     return RMS_voltage_value;
 }
