@@ -8,6 +8,9 @@
 #include "BUTTONS/buttons.h"
 #include <MEASUREMENTS/measurements.h>
 
+//#include <driver/i2c.h>
+#include "LCD/HD44780.h"
+
 #include "driver/gpio.h" //gpio
 
 #define PWM_DUTY_RES_BIT            7       //128
@@ -29,6 +32,12 @@
 #define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
 #define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
+#define LCD_ADDR                    0x27
+#define SDA_PIN                     21
+#define SCL_PIN                     22
+#define LCD_COLS                    20
+#define LCD_ROWS                    4
+
 int duty_cycle = 64;
 
 void app_main() 
@@ -41,7 +50,11 @@ void app_main()
     Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO);
 
     measurements_init(VOLTAGE_REF_LVL, VOLTAGE_MULTIPLIER, CURRENT_REF_LVL);
+
+    LCD_init(LCD_ADDR, SDA_PIN, SCL_PIN, LCD_COLS, LCD_ROWS);
    
+    char num[20];
+
     while(1)
     {
         if(eButton_Read(BUTTON_0) == PRESSED)
@@ -64,5 +77,28 @@ void app_main()
         printf("duty_cycle = %d \n",duty_cycle);
         printf("Voltage RMS value = %f V\n", get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
         printf("Current RMS value = %f A\n", get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES));
+
+        LCD_home();
+        LCD_clearScreen();
+        LCD_writeStr("20x4 I2C LCD");
+        vTaskDelay(300);
+        LCD_clearScreen();
+        LCD_writeStr("Lets Count 0-10!");
+        vTaskDelay(300);
+        for (int i = 0; i <= 10; i++) 
+        {
+            if (i % 2 == 1)
+            {
+                set_backlight_state(OFF);
+            }
+            else
+            {
+                set_backlight_state(ON);
+            }
+            LCD_setCursor(0, 1);
+            sprintf(num, "%d", i);
+            LCD_writeStr(num);
+            vTaskDelay(100);
+        }
     }
 }
