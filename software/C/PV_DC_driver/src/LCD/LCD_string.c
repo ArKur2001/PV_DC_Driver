@@ -39,12 +39,13 @@ void LCD_TEMPERATURE_state()
 void LCD_TEMPERATURE_setting(uint16_t temp)
 {
     char str_buf[6];
-    char symbol[3];
+    char symbol[4];
     symbol[0] = ' ';
     symbol[1] = 223;
     symbol[2] = 'C';
+    symbol[3] = ' ';
     
-    build_string(str_buf, 8, temp, symbol, 0);
+    build_string(str_buf, 9, temp, symbol, 0);
     LCD_setCursor(8, 2);
     LCD_writeStr(str_buf);
 }

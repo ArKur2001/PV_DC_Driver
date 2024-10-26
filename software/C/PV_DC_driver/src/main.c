@@ -42,12 +42,28 @@
 #define DS18B20_GPIO1               4       //boiler temperature sensor
 #define DS18B20_GPIO2               5       //case temperature sensor
 
-int duty_cycle = 64;
-double voltage_value = 0.0;
-double current_value = 0.0;
+enum Program_state  {IDLE, READ_TEMP_BOILER, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN};
+enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
 
 void app_main() 
 {
+    enum Program_state  eProgram_state  = IDLE;
+    enum LCD_state      eLCD_state      = INFO;  
+
+    uint64_t loop_number = 0;
+
+    int duty_cycle = 64;
+
+    double voltage_value = 0.0;
+    double current_value = 0.0;
+    double power_value = 0.0;
+
+    float temp_water = 0.0;
+    float temp_case = 0.0; 
+
+    uint8_t desired_temperature = 50;
+    uint8_t boiler_capacity = 100;
+
     PWM_init(PWM_DUTY_RES_BIT, PWM_PIN, PWM_FREQUENCY);
 
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
@@ -65,50 +81,228 @@ void app_main()
 
     while(1)
     {
-        if(eButton_Read(BUTTON_0) == PRESSED)
+        switch (eProgram_state)
         {
-            duty_cycle++;
+            case IDLE:
+                if(loop_number % 101 == 0)
+                {
+                    eProgram_state = READ_TEMP_BOILER;
+                }
+                else if(loop_number % 211 == 0)
+                {
+                    eProgram_state = READ_TEMP_CASE;
+                }
+                else if(loop_number % 11 == 0)
+                {
+                    eProgram_state = READ_BUTTONS;
+                }
+                else
+                {
+                    eProgram_state = MEASUREMENTS;
+                }
+
+                printf("loop_number = %" PRIu64 "\n",loop_number);
+
+                loop_number++;
+
+                break;
+
+            case READ_TEMP_BOILER:
+                temp_water = ds18b20_get_temp(DS18B20_GPIO1);
+
+                printf("Temp_boiler = %f C\n", temp_water); 
+
+                eProgram_state = MEASUREMENTS;
+
+                break;
+
+            case READ_TEMP_CASE:
+                temp_case = ds18b20_get_temp(DS18B20_GPIO2);
+
+                printf("Temp_case = %f C\n", temp_case); 
+
+                eProgram_state = MEASUREMENTS;
+
+                break;
+
+            case MEASUREMENTS:
+                vTaskDelay(pdMS_TO_TICKS(25));
+
+                voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
+                current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
+                power_value = voltage_value * current_value;
+                //printf("Voltage RMS value = %f V\n", voltage_value);
+                //printf("Current RMS value = %f A\n", current_value);    
+
+                eProgram_state = MPPT;
+                break;
+
+            case MPPT:
+                PWM_duty_cycle(duty_cycle);
+
+                //printf("duty_cycle = %d \n",duty_cycle);
+
+                eProgram_state = IDLE;
+                break;
+
+            case READ_BUTTONS:
+                if(eButton_Read(BUTTON_0) == PRESSED)
+                {
+                    switch (eLCD_state)
+                    {
+                        case INFO:
+                                desired_temperature = desired_temperature;
+                                boiler_capacity = boiler_capacity;
+
+                            break;
+
+                        case TEMPERATURE:
+                                if(desired_temperature <= 0)
+                                {
+                                    desired_temperature = desired_temperature;
+                                }
+                                else
+                                {
+                                    desired_temperature--;
+                                }
+
+                            break;
+
+                         case BOILER_CAPACITY:
+                                if(boiler_capacity <= 0)
+                                {
+                                    boiler_capacity = boiler_capacity;
+                                }
+                                else
+                                {
+                                    boiler_capacity = boiler_capacity - 10;
+                                }
+
+                            break;
+
+                        default:
+                            desired_temperature = desired_temperature;
+                            boiler_capacity = boiler_capacity;
+
+                            break;
+                    }
+                }
+                else if(eButton_Read(BUTTON_2) == PRESSED)
+                {
+                    switch (eLCD_state)
+                    {
+                        case INFO:
+                                desired_temperature = desired_temperature;
+                                boiler_capacity = boiler_capacity;
+
+                            break;
+
+                        case TEMPERATURE:
+                                if(desired_temperature >= 85)
+                                {
+                                    desired_temperature = desired_temperature;
+                                }
+                                else
+                                {
+                                    desired_temperature++;
+                                }
+
+                            break;
+
+                         case BOILER_CAPACITY:
+                                
+                                boiler_capacity = boiler_capacity + 10;
+                        
+                            break;
+
+                        default:
+                            desired_temperature = desired_temperature;
+                            boiler_capacity = boiler_capacity;
+
+                            break;
+                    }
+                }
+                else
+                {
+                    desired_temperature = desired_temperature;
+                    boiler_capacity = boiler_capacity;
+                }
+
+                eProgram_state = UPDATE_SCREEN;
+                break;
+
+            case UPDATE_SCREEN:
+                if(eButton_Read(BUTTON_1) == PRESSED)
+                {
+                    switch (eLCD_state)
+                    {
+                        case INFO:
+                                eLCD_state = TEMPERATURE;
+                                LCD_TEMPERATURE_state();
+
+                            break;
+
+                        case TEMPERATURE:
+                                eLCD_state = BOILER_CAPACITY;
+                                LCD_BOILER_CAPACITY_state();
+
+                            break;
+
+                        case BOILER_CAPACITY:
+                                eLCD_state = INFO;
+                                LCD_INFO_state();
+
+                            break;    
+
+                        default:
+                                eLCD_state = INFO;
+                                LCD_INFO_state();
+
+                            break;
+                    }
+                }
+                else
+                {
+                    eLCD_state = eLCD_state;
+                }
+
+                switch (eLCD_state)
+                {
+                    case INFO:
+                        LCD_INFO_power(power_value);
+                        LCD_INFO_temp(temp_water);
+                        LCD_INFO_voltage(voltage_value);
+                        LCD_INFO_current(current_value);
+                        LCD_INFO_energy(9500000);
+                        LCD_INFO_hours(2);
+                        LCD_INFO_minutes(2);
+
+                        break;
+
+                    case TEMPERATURE:
+                        LCD_TEMPERATURE_setting(desired_temperature);
+
+                        break;
+
+                    case BOILER_CAPACITY:
+                        LCD_BOILER_CAPACITY_setting(boiler_capacity);
+
+                        break;
+                    
+                    default:
+                        eLCD_state = INFO;
+
+                        break;
+                }
+
+                eProgram_state = IDLE;
+
+                break;
+            
+            default:
+                eProgram_state = IDLE;
+
+                break;
         }
-        else if(eButton_Read(BUTTON_1) == PRESSED)
-        {
-            duty_cycle--;
-        }
-        else if(eButton_Read(BUTTON_2) == PRESSED)
-        {
-            duty_cycle++;
-        }
-        else
-        {
-            duty_cycle = duty_cycle;
-        }
-        
-        PWM_duty_cycle(duty_cycle);
-
-        vTaskDelay(pdMS_TO_TICKS(25));
-
-        voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-        current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-
-        printf("duty_cycle = %d \n",duty_cycle);
-        printf("Voltage RMS value = %f V\n", voltage_value);
-        printf("Current RMS value = %f A\n", current_value);
-
-        float temperature1 = ds18b20_get_temp(DS18B20_GPIO1);
-        float temperature2 = ds18b20_get_temp(DS18B20_GPIO2);
-
-        printf("Temp_boiler = %f C\n", temperature1);
-        printf("Temp_case = %f C\n", temperature2);
-
-        LCD_INFO_power(1678.66666);
-        LCD_INFO_temp(temperature1);
-        LCD_INFO_voltage(voltage_value);
-        LCD_INFO_current(current_value);
-        LCD_INFO_energy(9500000);
-        LCD_INFO_hours(2);
-        LCD_INFO_minutes(2);
-
-        //LCD_TEMPERATURE_setting(20.345);
-
-        //LCD_BOILER_CAPACITY_setting(100);
     }
 }

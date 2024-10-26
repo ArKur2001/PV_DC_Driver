@@ -54,23 +54,23 @@ enum Button_State eButton_Read(enum Button_Name eButton_Name)
 
     switch(eButton_Name)
     {
-    case BUTTON_0:
-        ebut_level = ebut0_level;
-        ebut0_level = RELEASED; 
-        return ebut_level;
-        break;
-    case BUTTON_1:
-        ebut_level = ebut1_level;
-        ebut1_level = RELEASED; 
-        return ebut_level;
-        break;
-    case BUTTON_2:
-        ebut_level = ebut2_level;
-        ebut2_level = RELEASED; 
-        return ebut_level;
-        break;
-    default:
-        return RELEASED;
-        break;
+        case BUTTON_0:
+            ebut_level = ebut0_level;
+            ebut0_level = RELEASED; 
+            return ebut_level;
+            break;
+        case BUTTON_1:
+            ebut_level = ebut1_level;
+            ebut1_level = RELEASED; 
+            return ebut_level;
+            break;
+        case BUTTON_2:
+            ebut_level = ebut2_level;
+            ebut2_level = RELEASED; 
+            return ebut_level;
+            break;
+        default:
+            return RELEASED;
+            break;
     }
 }
