@@ -25,8 +25,9 @@
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
 
-#define BUTTON_0_GPIO               27      //GPIO27     
-#define BUTTON_1_GPIO               14      //GPIO14
+#define BUTTON_0_GPIO               26      //GPIO26     
+#define BUTTON_1_GPIO               27      //GPIO27
+#define BUTTON_2_GPIO               14      //GPIO14
 
 #define VOLTAGE_MULTIPLIER          20      //voltage_divider_value
 #define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
@@ -52,7 +53,7 @@ void app_main()
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
     set_adc_pin(ADC_CURRENT_PIN, ADC_VOLTAGE_PIN);
 
-    Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO);
+    Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO, BUTTON_2_GPIO);
 
     measurements_init(VOLTAGE_REF_LVL, VOLTAGE_MULTIPLIER, CURRENT_REF_LVL);
 
@@ -71,6 +72,10 @@ void app_main()
         else if(eButton_Read(BUTTON_1) == PRESSED)
         {
             duty_cycle--;
+        }
+        else if(eButton_Read(BUTTON_2) == PRESSED)
+        {
+            duty_cycle++;
         }
         else
         {
