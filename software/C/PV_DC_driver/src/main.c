@@ -10,8 +10,9 @@
 #include "LCD/LCD_string.h"
 #include "DS18B20/ds18b20.h"
 
+#include "esp_timer.h"
+
 #include <stdio.h>
-#include "driver/gpio.h" //gpio
 
 #define PWM_DUTY_RES_BIT            7       //128
 #define PWM_DUTY_RES                128
@@ -45,25 +46,40 @@
 enum Program_state  {IDLE, READ_TEMP_BOILER, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN};
 enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
 
+enum Program_state  eProgram_state  = IDLE;
+enum LCD_state      eLCD_state      = INFO;  
+
+uint64_t loop_number = 0;
+uint64_t second_number = 0;
+
+int duty_cycle = 64;
+
+double voltage_value = 0.0;
+double current_value = 0.0;
+double power_value = 0.0;
+
+float temp_water = 0.0;
+float temp_case = 0.0; 
+
+uint8_t desired_temperature = 50;
+uint16_t boiler_capacity = 100;
+
+double energy_j = 0.0;
+double energy_kWh = 0.0;
+
+void timer_callback(void *param)
+{
+    second_number++;
+    //printf("second_number = %" PRIu64 "\n", second_number);
+
+    energy_j = energy_j + power_value;
+    energy_kWh = energy_j / 3600000;
+
+    //printf("energy = %f kWh\n", energy_kWh);
+}
+
 void app_main() 
 {
-    enum Program_state  eProgram_state  = IDLE;
-    enum LCD_state      eLCD_state      = INFO;  
-
-    uint64_t loop_number = 0;
-
-    int duty_cycle = 64;
-
-    double voltage_value = 0.0;
-    double current_value = 0.0;
-    double power_value = 0.0;
-
-    float temp_water = 0.0;
-    float temp_case = 0.0; 
-
-    uint8_t desired_temperature = 50;
-    uint8_t boiler_capacity = 100;
-
     PWM_init(PWM_DUTY_RES_BIT, PWM_PIN, PWM_FREQUENCY);
 
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
@@ -75,9 +91,15 @@ void app_main()
 
     LCD_init(LCD_ADDR, SDA_PIN, SCL_PIN, LCD_COLS, LCD_ROWS);
    
+    const esp_timer_create_args_t my_timer_args = {
+      .callback = &timer_callback,
+      .name = "Program_timer"};
+
+    esp_timer_handle_t timer_handler;
+    esp_timer_create(&my_timer_args, &timer_handler);
+    esp_timer_start_periodic(timer_handler, 1000000);
+
     LCD_INFO_state();
-    //LCD_TEMPERATURE_state();
-    //LCD_BOILER_CAPACITY_state();
 
     while(1)
     {
@@ -101,7 +123,7 @@ void app_main()
                     eProgram_state = MEASUREMENTS;
                 }
 
-                printf("loop_number = %" PRIu64 "\n",loop_number);
+                printf("loop_number = %" PRIu64 "\n", loop_number);
 
                 loop_number++;
 
@@ -273,7 +295,7 @@ void app_main()
                         LCD_INFO_temp(temp_water);
                         LCD_INFO_voltage(voltage_value);
                         LCD_INFO_current(current_value);
-                        LCD_INFO_energy(9500000);
+                        LCD_INFO_energy(energy_kWh);
                         LCD_INFO_hours(2);
                         LCD_INFO_minutes(2);
 
