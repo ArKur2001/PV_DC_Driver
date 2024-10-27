@@ -43,14 +43,20 @@
 #define DS18B20_GPIO1               4       //boiler temperature sensor
 #define DS18B20_GPIO2               5       //case temperature sensor
 
+#define SPECIFIC_HEAT_WATER         4200    //J/kg
+#define WRITE_PERIOD                3600    //s
+#define LCD_BACKLIGHT_PERIOD        60      //s
+
 enum Program_state  {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN, WRITE_MEMORY};
 enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
 
-enum Program_state  eProgram_state  = IDLE;
-enum LCD_state      eLCD_state      = INFO;  
+enum Program_state  eProgram_state      = IDLE;
+enum LCD_state      eLCD_state          = INFO;  
+enum Backligt_state eBacklight_state    = ON;
 
 uint64_t loop_number = 0;
 uint64_t second_number = 0;
+uint64_t second_number_tmp = 0;
 
 int duty_cycle = 64;
 
@@ -70,6 +76,7 @@ uint8_t minutes = 0;
 
 uint64_t energy_j = 0.0;
 
+
 void timer_callback(void *param)
 {
     second_number++;
@@ -77,7 +84,7 @@ void timer_callback(void *param)
 
     energy_j = energy_j + power_value;
 
-    printf("energy = %" PRIu64 "\n", energy_j);
+    printf("energy = %" PRIu64 " J\n", energy_j);
 }
 
 void app_main() 
@@ -95,13 +102,13 @@ void app_main()
     
     flash_read(&desired_temperature, &boiler_capacity, &energy_j);
 
-    const esp_timer_create_args_t my_timer_args = {
+    const esp_timer_create_args_t program_timer_args = {
       .callback = &timer_callback,
       .name = "Program_timer"};
 
-    esp_timer_handle_t timer_handler;
-    esp_timer_create(&my_timer_args, &timer_handler);
-    esp_timer_start_periodic(timer_handler, 1000000);
+    esp_timer_handle_t program_timer_handler;
+    esp_timer_create(&program_timer_args, &program_timer_handler);
+    esp_timer_start_periodic(program_timer_handler, 1000000);
 
     LCD_INFO_state();
 
@@ -122,7 +129,7 @@ void app_main()
                 {
                     eProgram_state = READ_BUTTONS;
                 }
-                else if(second_number % 3600 == 0)
+                else if(second_number % WRITE_PERIOD == 0)
                 {
                     eProgram_state = WRITE_MEMORY;
                 }
@@ -154,7 +161,7 @@ void app_main()
                 }
                 else if(previous_temp_water != temp_water)
                 {
-                    int32_t time = ((desired_temperature - temp_water) * boiler_capacity * 4200) / power_value;
+                    int32_t time = ((desired_temperature - temp_water) * boiler_capacity * SPECIFIC_HEAT_WATER) / power_value;
 
                     hours = time / 3600;
                     minutes = (time - (hours * 3600)) / 60;
@@ -207,6 +214,8 @@ void app_main()
                         case INFO:
                                 desired_temperature = desired_temperature;
                                 boiler_capacity = boiler_capacity;
+                                
+                                eBacklight_state = ON;
 
                             break;
 
@@ -220,6 +229,8 @@ void app_main()
                                     desired_temperature--;
                                 }
 
+                                eBacklight_state = ON;
+
                             break;
 
                          case BOILER_CAPACITY:
@@ -231,6 +242,8 @@ void app_main()
                                 {
                                     boiler_capacity = boiler_capacity - 10;
                                 }
+
+                                eBacklight_state = ON;
 
                             break;
 
@@ -249,6 +262,8 @@ void app_main()
                                 desired_temperature = desired_temperature;
                                 boiler_capacity = boiler_capacity;
 
+                                eBacklight_state = ON;
+
                             break;
 
                         case TEMPERATURE:
@@ -261,11 +276,15 @@ void app_main()
                                     desired_temperature++;
                                 }
 
+                                eBacklight_state = ON;
+
                             break;
 
                          case BOILER_CAPACITY:
                                 
                                 boiler_capacity = boiler_capacity + 10;
+
+                                eBacklight_state = ON;
                         
                             break;
 
@@ -314,6 +333,8 @@ void app_main()
 
                             break;
                     }
+
+                    eBacklight_state = ON;
                 }
                 else
                 {
@@ -347,6 +368,43 @@ void app_main()
 
                         break;
                 }
+
+                switch (eBacklight_state)
+                {
+                    case ON:
+                        second_number_tmp = second_number + LCD_BACKLIGHT_PERIOD;
+                        
+                        eBacklight_state = OFF;
+
+                        if(second_number_tmp > second_number)
+                        {
+                            set_backlight_state(ON);
+                        }
+                        else
+                        {
+                            set_backlight_state(OFF);
+                        }
+
+                        break;
+
+                    case OFF:
+                        if(second_number_tmp > second_number)
+                        {
+                            set_backlight_state(ON);
+                        }
+                        else
+                        {
+                            set_backlight_state(OFF);
+                        }
+
+                        break;
+                    
+                    default:
+                        second_number_tmp = second_number_tmp;
+
+                        break;
+                }
+                
 
                 eProgram_state = IDLE;
 
