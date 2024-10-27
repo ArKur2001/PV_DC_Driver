@@ -115,9 +115,9 @@ void LCD_INFO_energy(double energy_j)
 
 void LCD_INFO_hours(uint8_t hour)
 {
-    char str_buf[4];
+    char str_buf[5];
     
-    build_string(str_buf, 4, hour, "h", 0);
+    build_string(str_buf, 5, hour, "h ", 0);
     LCD_setCursor(13, 3);
     LCD_writeStr(str_buf);
 }
@@ -136,7 +136,7 @@ void LCD_INFO_time(uint8_t hour, uint8_t minute)
     if(hour >= 24)
     {
         LCD_setCursor(13, 3);
-        LCD_writeStr("> 24h");
+        LCD_writeStr("> 24h  ");
     }
     else
     {

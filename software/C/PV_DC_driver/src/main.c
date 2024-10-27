@@ -9,7 +9,7 @@
 #include "LCD/HD44780.h"
 #include "LCD/LCD_string.h"
 #include "DS18B20/ds18b20.h"
-
+#include "MEMORY/memory.h"
 #include "esp_timer.h"
 
 #include <stdio.h>
@@ -43,7 +43,7 @@
 #define DS18B20_GPIO1               4       //boiler temperature sensor
 #define DS18B20_GPIO2               5       //case temperature sensor
 
-enum Program_state  {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN};
+enum Program_state  {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN, WRITE_MEMORY};
 enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
 
 enum Program_state  eProgram_state  = IDLE;
@@ -68,7 +68,7 @@ uint16_t boiler_capacity = 100;
 uint8_t hours = 0;
 uint8_t minutes = 0;
 
-double energy_j = 0.0;
+uint64_t energy_j = 0.0;
 
 void timer_callback(void *param)
 {
@@ -77,7 +77,7 @@ void timer_callback(void *param)
 
     energy_j = energy_j + power_value;
 
-    //printf("energy = %f J\n", energy_j);
+    printf("energy = %" PRIu64 "\n", energy_j);
 }
 
 void app_main() 
@@ -92,7 +92,9 @@ void app_main()
     measurements_init(VOLTAGE_REF_LVL, VOLTAGE_MULTIPLIER, CURRENT_REF_LVL);
 
     LCD_init(LCD_ADDR, SDA_PIN, SCL_PIN, LCD_COLS, LCD_ROWS);
-   
+    
+    flash_read(&desired_temperature, &boiler_capacity, &energy_j);
+
     const esp_timer_create_args_t my_timer_args = {
       .callback = &timer_callback,
       .name = "Program_timer"};
@@ -119,6 +121,10 @@ void app_main()
                 else if(loop_number % 11 == 0)
                 {
                     eProgram_state = READ_BUTTONS;
+                }
+                else if(second_number % 3600 == 0)
+                {
+                    eProgram_state = WRITE_MEMORY;
                 }
                 else
                 {
@@ -346,6 +352,26 @@ void app_main()
 
                 break;
             
+            case WRITE_MEMORY:
+                uint8_t desired_temperature_tmp;
+                uint16_t boiler_capacity_tmp;
+                uint64_t energy_j_tmp;
+
+                flash_read(&desired_temperature_tmp, &boiler_capacity_tmp, &energy_j_tmp);
+
+                if(desired_temperature_tmp != desired_temperature || boiler_capacity_tmp != boiler_capacity || energy_j_tmp != energy_j)
+                {
+                    flash_write(desired_temperature, boiler_capacity, energy_j);
+
+                    eProgram_state = IDLE;
+                }
+                else
+                {
+                    eProgram_state = IDLE;
+                }
+
+                break;
+
             default:
                 eProgram_state = IDLE;
 
