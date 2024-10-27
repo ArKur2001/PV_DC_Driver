@@ -43,7 +43,7 @@
 #define DS18B20_GPIO1               4       //boiler temperature sensor
 #define DS18B20_GPIO2               5       //case temperature sensor
 
-enum Program_state  {IDLE, READ_TEMP_BOILER, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN};
+enum Program_state  {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN};
 enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
 
 enum Program_state  eProgram_state  = IDLE;
@@ -59,13 +59,16 @@ double current_value = 0.0;
 double power_value = 0.0;
 
 float temp_water = 0.0;
+float previous_temp_water = 0.0;
 float temp_case = 0.0; 
 
 uint8_t desired_temperature = 50;
 uint16_t boiler_capacity = 100;
 
+uint8_t hours = 0;
+uint8_t minutes = 0;
+
 double energy_j = 0.0;
-double energy_kWh = 0.0;
 
 void timer_callback(void *param)
 {
@@ -73,9 +76,8 @@ void timer_callback(void *param)
     //printf("second_number = %" PRIu64 "\n", second_number);
 
     energy_j = energy_j + power_value;
-    energy_kWh = energy_j / 3600000;
 
-    //printf("energy = %f kWh\n", energy_kWh);
+    //printf("energy = %f J\n", energy_j);
 }
 
 void app_main() 
@@ -133,6 +135,30 @@ void app_main()
                 temp_water = ds18b20_get_temp(DS18B20_GPIO1);
 
                 printf("Temp_boiler = %f C\n", temp_water); 
+
+                eProgram_state = END_TIME;
+
+                break;
+
+             case END_TIME:
+                if(power_value == 0)
+                {
+                    hours = 0;
+                    minutes = 0;
+                }
+                else if(previous_temp_water != temp_water)
+                {
+                    int32_t time = ((desired_temperature - temp_water) * boiler_capacity * 4200) / power_value;
+
+                    hours = time / 3600;
+                    minutes = (time - (hours * 3600)) / 60;
+
+                    previous_temp_water = temp_water;
+                }
+                else
+                {
+                    previous_temp_water = temp_water;
+                }
 
                 eProgram_state = MEASUREMENTS;
 
@@ -295,9 +321,8 @@ void app_main()
                         LCD_INFO_temp(temp_water);
                         LCD_INFO_voltage(voltage_value);
                         LCD_INFO_current(current_value);
-                        LCD_INFO_energy(energy_kWh);
-                        LCD_INFO_hours(2);
-                        LCD_INFO_minutes(2);
+                        LCD_INFO_energy(energy_j);
+                        LCD_INFO_time(hours, minutes);
 
                         break;
 

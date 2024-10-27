@@ -13,7 +13,6 @@ void LCD_INFO_temp(double temp);
 void LCD_INFO_voltage(double voltage);
 void LCD_INFO_current(double current);
 void LCD_INFO_energy(double energy_j);
-void LCD_INFO_hours(uint8_t hour);
-void LCD_INFO_minutes(uint8_t minute);
+void LCD_INFO_time(uint8_t hour, uint8_t minute);
 
 #endif //H_LCD_STRING 
