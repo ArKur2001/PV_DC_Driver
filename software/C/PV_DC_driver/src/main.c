@@ -10,6 +10,7 @@
 #include "LCD/LCD_string.h"
 #include "DS18B20/ds18b20.h"
 #include "MEMORY/memory.h"
+#include "LED/led.h"
 #include "esp_timer.h"
 
 #include <stdio.h>
@@ -47,12 +48,19 @@
 #define WRITE_PERIOD                3600    //s
 #define LCD_BACKLIGHT_PERIOD        60      //s
 
-enum Program_state  {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS ,UPDATE_SCREEN, WRITE_MEMORY};
-enum LCD_state      {INFO, TEMPERATURE, BOILER_CAPACITY};
+#define LED_GREEN_PIN               18      //GPIO19
+#define LED_RED_PIN                 19      //GPIO19
 
-enum Program_state  eProgram_state      = IDLE;
-enum LCD_state      eLCD_state          = INFO;  
-enum Backligt_state eBacklight_state    = ON;
+enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS};
+enum LCD_state                  {INFO, TEMPERATURE, BOILER_CAPACITY};
+enum Water_Heating_Status       {STOP_HEATING, ALLOW_HEATING};
+//enum Case_Overheating_Status    {OK, OVERHEATED};
+
+enum Program_state  eProgram_state                      = IDLE;
+enum LCD_state      eLCD_state                          = INFO;  
+enum Backligt_state eBacklight_state                    = ON;
+enum Water_Heating_Status eWater_Heating_Status         = STOP_HEATING;
+//enum Case_Overheating_Status eCase_Overheating_Status   = OK;
 
 uint64_t loop_number = 0;
 uint64_t second_number = 0;
@@ -100,6 +108,8 @@ void app_main()
 
     LCD_init(LCD_ADDR, SDA_PIN, SCL_PIN, LCD_COLS, LCD_ROWS);
     
+    Led_Init(LED_GREEN_PIN, LED_RED_PIN);
+
     flash_read(&desired_temperature, &boiler_capacity, &energy_j);
 
     const esp_timer_create_args_t program_timer_args = {
@@ -149,12 +159,12 @@ void app_main()
 
                 printf("Temp_boiler = %f C\n", temp_water); 
 
-                eProgram_state = END_TIME;
+                eProgram_state = HEATING_STATUS;
 
                 break;
 
-             case END_TIME:
-                if(power_value == 0)
+            case END_TIME:
+                if(power_value == 0.0)
                 {
                     hours = 0;
                     minutes = 0;
@@ -172,8 +182,8 @@ void app_main()
                 {
                     previous_temp_water = temp_water;
                 }
-
-                eProgram_state = MEASUREMENTS;
+    
+                eProgram_state = UPDATE_SCREEN;
 
                 break;
 
@@ -182,16 +192,26 @@ void app_main()
 
                 printf("Temp_case = %f C\n", temp_case); 
 
-                eProgram_state = MEASUREMENTS;
+                eProgram_state = HEATING_STATUS;
 
                 break;
 
             case MEASUREMENTS:
                 vTaskDelay(pdMS_TO_TICKS(25));
 
-                voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-                current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-                power_value = voltage_value * current_value;
+                if(duty_cycle != 0)
+                {
+                    voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
+                    current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
+                    power_value = voltage_value * current_value;
+                }
+                else
+                {
+                    voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), 128, PWM_DUTY_RES);
+                    current_value = 0.0;
+                    power_value = 0.0;
+                }
+               
                 //printf("Voltage RMS value = %f V\n", voltage_value);
                 //printf("Current RMS value = %f A\n", current_value);    
 
@@ -199,11 +219,34 @@ void app_main()
                 break;
 
             case MPPT:
-                PWM_duty_cycle(duty_cycle);
+                switch (eWater_Heating_Status)
+                {
+                    case STOP_HEATING:
+                        duty_cycle = 0;
 
-                //printf("duty_cycle = %d \n",duty_cycle);
+                        PWM_duty_cycle(duty_cycle);
+
+                        break;
+
+                     case ALLOW_HEATING:
+                        duty_cycle = 64;
+
+                        PWM_duty_cycle(duty_cycle);
+
+                        break;
+
+                    default:
+                        duty_cycle = 0;
+
+                        PWM_duty_cycle(duty_cycle);
+
+                        break;
+                }
+
+                printf("duty_cycle = %d \n",duty_cycle);
 
                 eProgram_state = IDLE;
+                
                 break;
 
             case READ_BUTTONS:
@@ -301,7 +344,7 @@ void app_main()
                     boiler_capacity = boiler_capacity;
                 }
 
-                eProgram_state = UPDATE_SCREEN;
+                eProgram_state = END_TIME;
                 break;
 
             case UPDATE_SCREEN:
@@ -426,6 +469,83 @@ void app_main()
                 else
                 {
                     eProgram_state = IDLE;
+                }
+
+                break;
+
+            case HEATING_STATUS:
+                switch (eWater_Heating_Status)
+                {
+                    case STOP_HEATING:
+                        if(temp_case >= 75)
+                        {
+                            eWater_Heating_Status = STOP_HEATING;
+
+                            Led_green_set(LED_OFF);
+                            Led_red_set(LED_ON);
+
+                            eProgram_state = MPPT;
+                        }
+                        else if(temp_water >= desired_temperature - 1)
+                        {
+                            eWater_Heating_Status = STOP_HEATING;
+                            
+                            Led_green_set(LED_ON);
+                            Led_red_set(LED_ON);
+
+                            eProgram_state = MPPT;
+                        }
+                        else
+                        {
+                            eWater_Heating_Status = ALLOW_HEATING;
+
+                            Led_green_set(LED_ON);
+                            Led_red_set(LED_OFF);
+
+                            eProgram_state = IDLE;
+                        }
+
+                        break;
+
+                    case ALLOW_HEATING:
+                        if(temp_case >= 85)
+                        {
+                            eWater_Heating_Status = STOP_HEATING;
+
+                            Led_green_set(LED_OFF);
+                            Led_red_set(LED_ON);
+
+                            eProgram_state = MPPT;
+                        }
+                        else if(temp_water >= desired_temperature)
+                        {
+                            eWater_Heating_Status = STOP_HEATING;
+
+                            Led_green_set(LED_ON);
+                            Led_red_set(LED_ON);
+
+                            eProgram_state = MPPT;
+                        }
+                        else
+                        {
+                            eWater_Heating_Status = ALLOW_HEATING;
+
+                            Led_green_set(LED_ON);
+                            Led_red_set(LED_OFF);
+
+                            eProgram_state = IDLE;
+                        }
+                        break;
+
+                    default:
+                        eWater_Heating_Status = STOP_HEATING;
+
+                        Led_green_set(LED_OFF);
+                        Led_red_set(LED_OFF);
+
+                        eProgram_state = IDLE;
+
+                        break;
                 }
 
                 break;
