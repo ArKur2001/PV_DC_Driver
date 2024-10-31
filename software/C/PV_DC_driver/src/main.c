@@ -26,7 +26,7 @@
 #define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
-#define MEASUREMENT_DELAY           200      //3 time constants (ms)
+#define MEASUREMENT_DELAY           50      //3 time constants (ms)
 
 #define BUTTON_0_GPIO               26      //GPIO26     
 #define BUTTON_1_GPIO               27      //GPIO27
@@ -244,6 +244,8 @@ void app_main()
                 {
                     case STOP_HEATING:
                         duty_cycle = 0;
+                        
+                        eProgram_state = IDLE;
 
                         break;
 
