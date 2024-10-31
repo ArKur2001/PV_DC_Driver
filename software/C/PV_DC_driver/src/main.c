@@ -26,6 +26,7 @@
 #define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
+#define MEASUREMENT_DELAY           35      //3 time constants (ms)
 
 #define BUTTON_0_GPIO               26      //GPIO26     
 #define BUTTON_1_GPIO               27      //GPIO27
@@ -51,20 +52,23 @@
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
+#define MPPT_PERIOD                 30      //s
+
 enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS};
 enum LCD_state                  {INFO, TEMPERATURE, BOILER_CAPACITY};
 enum Water_Heating_Status       {STOP_HEATING, ALLOW_HEATING};
+enum MPPT_stage                 {STAGE_SETUP, STAGE_1, STAGE_2, STAGE_3, STAGE_4, STAGE_5, STAGE_6, STAGE_7, STAGE_8, STAGE_9, STAGE_10, STAGE_11, STAGE_12};
 
-enum Program_state  eProgram_state                      = IDLE;
-enum LCD_state      eLCD_state                          = INFO;  
-enum Backligt_state eBacklight_state                    = ON;
-enum Water_Heating_Status eWater_Heating_Status         = STOP_HEATING;
+enum Program_state  eProgram_state              = IDLE;
+enum LCD_state      eLCD_state                  = INFO;  
+enum Backligt_state eBacklight_state            = ON;
+enum Water_Heating_Status eWater_Heating_Status = STOP_HEATING;
+enum MPPT_stage eMPPT_stage                     = STAGE_SETUP;
 
 uint64_t loop_number = 0;
 uint64_t second_number = 0;
-uint64_t second_number_tmp = 0;
-
-int duty_cycle = 64;
+uint64_t second_number_lcd_tmp = 0;
+uint64_t second_number_mppt_tmp = 0;
 
 double voltage_value = 0.0;
 double current_value = 0.0;
@@ -82,6 +86,12 @@ uint8_t minutes = 0;
 
 uint64_t energy_j = 0.0;
 
+uint8_t duty_cycle = 0;
+uint8_t duty_cycle_tmp1 = 0;
+uint8_t duty_cycle_tmp2 = 0;
+uint8_t duty_cycle_opt = 0;
+double power_buf = 0.0;
+double power_opt = 0.0;
 
 void timer_callback(void *param)
 {
@@ -96,6 +106,7 @@ void timer_callback(void *param)
 void app_main() 
 {
     PWM_init(PWM_DUTY_RES_BIT, PWM_PIN, PWM_FREQUENCY);
+    PWM_duty_cycle(0);
 
     ADC1_init(ADC_UNIT, ADC_BITWIDTH, ADC_ATTEN);
     set_adc_pin(ADC_CURRENT_PIN, ADC_VOLTAGE_PIN);
@@ -195,7 +206,7 @@ void app_main()
                 break;
 
             case MEASUREMENTS:
-                vTaskDelay(pdMS_TO_TICKS(25));
+                vTaskDelay(pdMS_TO_TICKS(MEASUREMENT_DELAY));
 
                 if(duty_cycle != 0)
                 {
@@ -211,37 +222,354 @@ void app_main()
                 }
                
                 //printf("Voltage RMS value = %f V\n", voltage_value);
-                //printf("Current RMS value = %f A\n", current_value);    
+                //printf("Current RMS value = %f A\n", current_value); 
+                //printf("Power RMS value = %f W\n", power_value);    
 
-                eProgram_state = MPPT;
+                if(eMPPT_stage == STAGE_SETUP)
+                {
+                    eProgram_state = IDLE;
+                }
+                else
+                {
+                    eProgram_state = MPPT;
+                }
+
                 break;
 
             case MPPT:
+                uint8_t duty_cycle_temporary = 0;
+                double power_temporary = 0.0;
+
                 switch (eWater_Heating_Status)
                 {
                     case STOP_HEATING:
                         duty_cycle = 0;
 
-                        PWM_duty_cycle(duty_cycle);
-
                         break;
 
                      case ALLOW_HEATING:
-                        duty_cycle = 64;
+                        switch (eMPPT_stage)
+                        {
+                            case STAGE_SETUP:
+                                if(second_number_mppt_tmp > second_number)
+                                {
+                                    duty_cycle = duty_cycle;
 
-                        PWM_duty_cycle(duty_cycle);
+                                    eMPPT_stage = STAGE_SETUP;
+
+                                    eProgram_state = IDLE;
+                                }
+                                else
+                                {
+                                    duty_cycle_tmp1 = 32;
+                                    duty_cycle_tmp2 = 96;
+                                    duty_cycle_opt = 0;
+
+                                    power_buf = 0.0;
+                                    power_opt = 0.0;
+                                
+                                    duty_cycle = duty_cycle_tmp1;
+
+                                    eMPPT_stage = STAGE_1;
+                                    eProgram_state = MEASUREMENTS;
+                                }
+
+                                break;
+
+                            case STAGE_1:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_2;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_2:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                power_opt = power_temporary;
+                                duty_cycle_opt = duty_cycle_temporary;
+
+                                duty_cycle_tmp1 = duty_cycle_temporary - 16;
+                                duty_cycle_tmp2 = duty_cycle_temporary + 16;
+
+                                duty_cycle = duty_cycle_tmp1;
+
+                                eMPPT_stage = STAGE_3;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_3:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_4;
+                                    
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_4:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+
+                                if(power_temporary > power_opt)
+                                {
+                                    power_opt = power_temporary;
+                                    duty_cycle_opt = duty_cycle_temporary;
+                                }
+                                else
+                                {
+                                    power_opt = power_opt;
+                                    duty_cycle_opt = duty_cycle_opt;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                duty_cycle_tmp1 = duty_cycle_temporary - 8;
+                                duty_cycle_tmp2 = duty_cycle_temporary + 8;
+
+                                duty_cycle = duty_cycle_tmp1;
+
+                                eMPPT_stage = STAGE_5;   
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_5:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_6;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_6:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+
+                                if(power_temporary > power_opt)
+                                {
+                                    power_opt = power_temporary;
+                                    duty_cycle_opt = duty_cycle_temporary;
+                                }
+                                else
+                                {
+                                    power_opt = power_opt;
+                                    duty_cycle_opt = duty_cycle_opt;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                duty_cycle_tmp1 = duty_cycle_temporary - 4;
+                                duty_cycle_tmp2 = duty_cycle_temporary + 4;
+
+                                duty_cycle = duty_cycle_tmp1;
+
+                                eMPPT_stage = STAGE_7;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_7:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_8;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_8:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+
+                                if(power_temporary > power_opt)
+                                {
+                                    power_opt = power_temporary;
+                                    duty_cycle_opt = duty_cycle_temporary;
+                                }
+                                else
+                                {
+                                    power_opt = power_opt;
+                                    duty_cycle_opt = duty_cycle_opt;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                duty_cycle_tmp1 = duty_cycle_temporary - 2;
+                                duty_cycle_tmp2 = duty_cycle_temporary + 2;
+
+                                duty_cycle = duty_cycle_tmp1;
+
+                                eMPPT_stage = STAGE_9;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_9:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_10;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_10:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+
+                                if(power_temporary > power_opt)
+                                {
+                                    power_opt = power_temporary;
+                                    duty_cycle_opt = duty_cycle_temporary;
+                                }
+                                else
+                                {
+                                    power_opt = power_opt;
+                                    duty_cycle_opt = duty_cycle_opt;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                duty_cycle_tmp1 = duty_cycle_temporary - 1;
+                                duty_cycle_tmp2 = duty_cycle_temporary + 1;
+
+                                duty_cycle = duty_cycle_tmp1;
+
+
+                                eMPPT_stage = STAGE_11;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+                                
+                            case STAGE_11:
+                                power_buf = power_value;
+
+                                duty_cycle = duty_cycle_tmp2;
+
+                                eMPPT_stage = STAGE_12;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            case STAGE_12:
+                                if(power_value > power_buf)
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp2;
+                                    power_temporary = power_value;
+                                }
+                                else
+                                {
+                                    duty_cycle_temporary = duty_cycle_tmp1;
+                                    power_temporary = power_buf;
+                                }
+
+
+                                if(power_temporary > power_opt)
+                                {
+                                    power_opt = power_temporary;
+                                    duty_cycle_opt = duty_cycle_temporary;
+                                }
+                                else
+                                {
+                                    power_opt = power_opt;
+                                    duty_cycle_opt = duty_cycle_opt;
+                                }
+
+                                printf("Power RMS value = %f W\n", power_value);
+
+                                duty_cycle_tmp1 = 0;
+                                duty_cycle_tmp2 = 0;
+                                power_opt = 0.0;
+
+                                duty_cycle = duty_cycle_opt;
+
+                                second_number_mppt_tmp = second_number_mppt_tmp + MPPT_PERIOD;
+
+                                eMPPT_stage = STAGE_SETUP;
+                                eProgram_state = MEASUREMENTS;
+
+                                break;
+
+                            default:
+                                duty_cycle = 0;
+
+                                second_number_mppt_tmp = second_number_mppt_tmp;
+
+                                eMPPT_stage = STAGE_SETUP;
+                                eProgram_state = IDLE;
+
+                                break;
+                        }
 
                         break;
 
                     default:
                         duty_cycle = 0;
 
-                        PWM_duty_cycle(duty_cycle);
-
                         break;
                 }
 
-                printf("duty_cycle = %d \n",duty_cycle);
+                PWM_duty_cycle(duty_cycle);
+
+                printf("duty_cycle = %" PRIu8 "\n",duty_cycle);
 
                 eProgram_state = IDLE;
                 
@@ -413,11 +741,11 @@ void app_main()
                 switch (eBacklight_state)
                 {
                     case ON:
-                        second_number_tmp = second_number + LCD_BACKLIGHT_PERIOD;
+                        second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
                         
                         eBacklight_state = OFF;
 
-                        if(second_number_tmp > second_number)
+                        if(second_number_lcd_tmp > second_number)
                         {
                             set_backlight_state(ON);
                         }
@@ -429,7 +757,7 @@ void app_main()
                         break;
 
                     case OFF:
-                        if(second_number_tmp > second_number)
+                        if(second_number_lcd_tmp > second_number)
                         {
                             set_backlight_state(ON);
                         }
@@ -441,7 +769,7 @@ void app_main()
                         break;
                     
                     default:
-                        second_number_tmp = second_number_tmp;
+                        second_number_lcd_tmp = second_number_lcd_tmp;
 
                         break;
                 }
@@ -481,8 +809,6 @@ void app_main()
 
                             Led_green_set(LED_OFF);
                             Led_red_set(LED_ON);
-
-                            eProgram_state = MPPT;
                         }
                         else if(temp_water >= desired_temperature - 1)
                         {
@@ -490,8 +816,6 @@ void app_main()
                             
                             Led_green_set(LED_ON);
                             Led_red_set(LED_ON);
-
-                            eProgram_state = MPPT;
                         }
                         else
                         {
@@ -499,9 +823,9 @@ void app_main()
 
                             Led_green_set(LED_ON);
                             Led_red_set(LED_OFF);
-
-                            eProgram_state = IDLE;
                         }
+
+                        eProgram_state = MPPT;
 
                         break;
 
@@ -512,8 +836,6 @@ void app_main()
 
                             Led_green_set(LED_OFF);
                             Led_red_set(LED_ON);
-
-                            eProgram_state = MPPT;
                         }
                         else if(temp_water >= desired_temperature)
                         {
@@ -521,8 +843,6 @@ void app_main()
 
                             Led_green_set(LED_ON);
                             Led_red_set(LED_ON);
-
-                            eProgram_state = MPPT;
                         }
                         else
                         {
@@ -530,9 +850,10 @@ void app_main()
 
                             Led_green_set(LED_ON);
                             Led_red_set(LED_OFF);
-
-                            eProgram_state = IDLE;
                         }
+
+                        eProgram_state = MPPT;
+
                         break;
 
                     default:
