@@ -36,8 +36,8 @@
 #define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
 #define LCD_ADDR                    0x27
-#define SDA_PIN                     21
-#define SCL_PIN                     22
+#define SDA_PIN                     21      //GPIO21
+#define SCL_PIN                     22      //GPIO22
 #define LCD_COLS                    20
 #define LCD_ROWS                    4
 
@@ -48,19 +48,17 @@
 #define WRITE_PERIOD                3600    //s
 #define LCD_BACKLIGHT_PERIOD        60      //s
 
-#define LED_GREEN_PIN               18      //GPIO19
+#define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
 enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS};
 enum LCD_state                  {INFO, TEMPERATURE, BOILER_CAPACITY};
 enum Water_Heating_Status       {STOP_HEATING, ALLOW_HEATING};
-//enum Case_Overheating_Status    {OK, OVERHEATED};
 
 enum Program_state  eProgram_state                      = IDLE;
 enum LCD_state      eLCD_state                          = INFO;  
 enum Backligt_state eBacklight_state                    = ON;
 enum Water_Heating_Status eWater_Heating_Status         = STOP_HEATING;
-//enum Case_Overheating_Status eCase_Overheating_Status   = OK;
 
 uint64_t loop_number = 0;
 uint64_t second_number = 0;
