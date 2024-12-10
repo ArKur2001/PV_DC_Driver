@@ -1,11 +1,11 @@
 LTspice 24.0.12 for Windows
 Circuit: * C:\Users\Mr_Dusza\Desktop\Git\PV_DC_Driver\simulations\PWM_MPPT.asc
-Start Time: Thu Nov 14 22:53:41 2024
+Start Time: Mon Dec  9 20:11:33 2024
 solver = Normal
-Maximum thread count: 12
+Maximum thread count: 16
 tnom = 27
 temp = 27
 method = modified trap
 Direct Newton iteration for .op point succeeded.
-Total elapsed time: 8.114 seconds.
+Total elapsed time: 17.508 seconds.
 
