@@ -26,13 +26,13 @@
 #define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
-#define MEASUREMENT_DELAY           50      //3 time constants (ms)
+#define MEASUREMENT_DELAY           100     //3 time constants (ms)
 
-#define BUTTON_0_GPIO               26      //GPIO26     
+#define BUTTON_0_GPIO               14      //GPIO14  
 #define BUTTON_1_GPIO               27      //GPIO27
-#define BUTTON_2_GPIO               14      //GPIO14
+#define BUTTON_2_GPIO               26      //GPIO26
 
-#define VOLTAGE_MULTIPLIER          20      //voltage_divider_value
+#define VOLTAGE_MULTIPLIER          19.88   //voltage_divider_value
 #define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
 #define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
@@ -52,9 +52,9 @@
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
-#define MPPT_PERIOD                 15      //s
+#define MPPT_PERIOD                 30      //s
 
-enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS, CALLIB};
+enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS};
 enum LCD_state                  {INFO, TEMPERATURE, BOILER_CAPACITY};
 enum Water_Heating_Status       {STOP_HEATING, ALLOW_HEATING};
 enum MPPT_stage                 {STAGE_SETUP, STAGE_1, STAGE_2, STAGE_3, STAGE_4, STAGE_5, STAGE_6, STAGE_7, STAGE_8, STAGE_9, STAGE_10, STAGE_11, STAGE_12};
@@ -100,7 +100,7 @@ void timer_callback(void *param)
 
     energy_j = energy_j + power_value;
 
-    printf("energy = %" PRIu64 " J\n", energy_j);
+    //printf("energy = %" PRIu64 " J\n", energy_j);
 }
 
 void app_main() 
@@ -157,7 +157,7 @@ void app_main()
                     eProgram_state = MEASUREMENTS;
                 }
 
-                printf("loop_number = %" PRIu64 "\n", loop_number);
+                //printf("loop_number = %" PRIu64 "\n", loop_number);
 
                 loop_number++;
 
@@ -206,10 +206,19 @@ void app_main()
                 break;
 
             case MEASUREMENTS:
-                vTaskDelay(pdMS_TO_TICKS(MEASUREMENT_DELAY));
-
                 if(duty_cycle != 0)
                 {
+                    if(eMPPT_stage == STAGE_SETUP)
+                    {
+                        eProgram_state = IDLE;
+                    }
+                    else
+                    {
+                        vTaskDelay(pdMS_TO_TICKS(MEASUREMENT_DELAY));
+
+                        eProgram_state = MPPT;
+                    }
+
                     voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
                     current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
                     power_value = voltage_value * current_value;
@@ -219,20 +228,14 @@ void app_main()
                     voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), 128, PWM_DUTY_RES);
                     current_value = 0.0;
                     power_value = 0.0;
+
+                    eProgram_state = IDLE; 
                 }
                
-                //printf("Voltage RMS value = %f V\n", voltage_value);
-                //printf("Current RMS value = %f A\n", current_value); 
+                printf("duty_cycle = %" PRIu8 "\n",duty_cycle);
+                printf("Voltage RMS value = %f V\n", voltage_value);
+                printf("Current RMS value = %f A\n", current_value); 
                 //printf("Power RMS value = %f W\n", power_value);    
-
-                if(eMPPT_stage == STAGE_SETUP)
-                {
-                    eProgram_state = IDLE;
-                }
-                else
-                {
-                    eProgram_state = MPPT;
-                }
 
                 break;
 
@@ -880,24 +883,6 @@ void app_main()
 
                         break;
                 }
-
-                break;
-
-                case CALLIB:
-                    duty_cycle = 64;
-                    PWM_duty_cycle(duty_cycle);
-
-                    voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-                    current_value = get_current_value(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER), duty_cycle, PWM_DUTY_RES);
-                    power_value = voltage_value * current_value;
-
-                    printf("Voltage RMS value = %f V\n", voltage_value);
-                    printf("Current RMS value = %f A\n", current_value); 
-                    printf("Power RMS value = %f W\n", power_value); 
-
-                    vTaskDelay(pdMS_TO_TICKS(500));  
-
-                    eProgram_state = CALLIB;
 
                 break;
 

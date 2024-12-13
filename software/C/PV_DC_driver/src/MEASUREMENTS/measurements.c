@@ -2,10 +2,10 @@
 #include <math.h>
 
 uint16_t voltage_reference_level = 0;
-uint16_t voltage_multiplier_val = 0;
+float voltage_multiplier_val = 0.0;
 uint16_t current_reference_level = 0;
 
-void measurements_init(uint16_t voltage_v_ref, uint16_t voltage_multiplier, uint16_t current_v_ref)
+void measurements_init(uint16_t voltage_v_ref, float voltage_multiplier, uint16_t current_v_ref)
 {
     voltage_reference_level = 2 * voltage_v_ref;
     voltage_multiplier_val = voltage_multiplier;
