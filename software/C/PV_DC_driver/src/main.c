@@ -820,7 +820,7 @@ void app_main()
                 switch (eWater_Heating_Status)
                 {
                     case STOP_HEATING:
-                        if(temp_case >= 75)
+                        if(temp_case >= 75 || temp_case <= 0 || temp_water <= 0)
                         {
                             eWater_Heating_Status = STOP_HEATING;
 
@@ -847,7 +847,7 @@ void app_main()
                         break;
 
                     case ALLOW_HEATING:
-                        if(temp_case >= 85)
+                        if(temp_case >= 85 || temp_case <= 0 || temp_water <= 0)
                         {
                             eWater_Heating_Status = STOP_HEATING;
 

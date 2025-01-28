@@ -38,12 +38,13 @@ void LCD_TEMPERATURE_state()
 
 void LCD_TEMPERATURE_setting(uint16_t temp)
 {
-    char str_buf[6];
-    char symbol[4];
+    char str_buf[7];
+    char symbol[5];
     symbol[0] = ' ';
     symbol[1] = 223;
     symbol[2] = 'C';
     symbol[3] = ' ';
+    symbol[4] = '\0';
     
     build_string(str_buf, 9, temp, symbol, 0);
     LCD_setCursor(8, 2);
@@ -82,7 +83,15 @@ void LCD_INFO_temp(double temp)
     
     build_string(str_buf, 8, temp, symbol, 1);
     LCD_setCursor(13, 0);
-    LCD_writeStr(str_buf);
+
+    if (temp <= 0)
+    {
+        LCD_writeStr("ERROR  ");
+    }
+    else
+    {
+        LCD_writeStr(str_buf);
+    }
 }
 
 void LCD_INFO_voltage(double voltage)
