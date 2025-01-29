@@ -61,13 +61,12 @@ enum MPPT_stage                 {STAGE_SETUP, STAGE_1, STAGE_2, STAGE_3, STAGE_4
 
 enum Program_state  eProgram_state              = IDLE;
 enum LCD_state      eLCD_state                  = INFO;  
-enum Backligt_state eBacklight_state            = ON;
 enum Water_Heating_Status eWater_Heating_Status = STOP_HEATING;
 enum MPPT_stage eMPPT_stage                     = STAGE_SETUP;
 
 uint64_t loop_number = 0;
 uint64_t second_number = 0;
-uint64_t second_number_lcd_tmp = 0;
+uint64_t second_number_lcd_tmp = LCD_BACKLIGHT_PERIOD;
 uint64_t second_number_mppt_tmp = 0;
 
 double voltage_value = 0.0;
@@ -601,8 +600,6 @@ void app_main()
                                 desired_temperature = desired_temperature;
                                 boiler_capacity = boiler_capacity;
                                 
-                                eBacklight_state = ON;
-
                             break;
 
                         case TEMPERATURE:
@@ -614,8 +611,6 @@ void app_main()
                                 {
                                     desired_temperature--;
                                 }
-
-                                eBacklight_state = ON;
 
                             break;
 
@@ -629,8 +624,6 @@ void app_main()
                                     boiler_capacity = boiler_capacity - 10;
                                 }
 
-                                eBacklight_state = ON;
-
                             break;
 
                         default:
@@ -639,6 +632,8 @@ void app_main()
 
                             break;
                     }
+
+                    second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
                 }
                 else if(eButton_Read(BUTTON_2) == PRESSED)
                 {
@@ -647,8 +642,6 @@ void app_main()
                         case INFO:
                                 desired_temperature = desired_temperature;
                                 boiler_capacity = boiler_capacity;
-
-                                eBacklight_state = ON;
 
                             break;
 
@@ -662,16 +655,12 @@ void app_main()
                                     desired_temperature++;
                                 }
 
-                                eBacklight_state = ON;
-
                             break;
 
                          case BOILER_CAPACITY:
                                 
                                 boiler_capacity = boiler_capacity + 10;
-
-                                eBacklight_state = ON;
-                        
+ 
                             break;
 
                         default:
@@ -680,6 +669,8 @@ void app_main()
 
                             break;
                     }
+
+                    second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
                 }
                 else
                 {
@@ -720,7 +711,7 @@ void app_main()
                             break;
                     }
 
-                    eBacklight_state = ON;
+                    second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
                 }
                 else
                 {
@@ -755,42 +746,14 @@ void app_main()
                         break;
                 }
 
-                switch (eBacklight_state)
+                if(second_number_lcd_tmp > second_number)
                 {
-                    case ON:
-                        second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
-                        
-                        eBacklight_state = OFF;
-
-                        if(second_number_lcd_tmp > second_number)
-                        {
-                            set_backlight_state(ON);
-                        }
-                        else
-                        {
-                            set_backlight_state(OFF);
-                        }
-
-                        break;
-
-                    case OFF:
-                        if(second_number_lcd_tmp > second_number)
-                        {
-                            set_backlight_state(ON);
-                        }
-                        else
-                        {
-                            set_backlight_state(OFF);
-                        }
-
-                        break;
-                    
-                    default:
-                        second_number_lcd_tmp = second_number_lcd_tmp;
-
-                        break;
+                    set_backlight_state(ON);
                 }
-                
+                else
+                {
+                    set_backlight_state(OFF);
+                }
 
                 eProgram_state = IDLE;
 
