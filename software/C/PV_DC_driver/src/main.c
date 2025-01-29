@@ -68,6 +68,7 @@ uint64_t loop_number = 0;
 uint64_t second_number = 0;
 uint64_t second_number_lcd_tmp = LCD_BACKLIGHT_PERIOD;
 uint64_t second_number_mppt_tmp = 0;
+uint64_t second_number_write_memory_tmp = WRITE_PERIOD;
 
 double voltage_value = 0.0;
 double current_value = 0.0;
@@ -120,9 +121,7 @@ void app_main()
 
     flash_read(&desired_temperature, &boiler_capacity, &energy_j);
 
-    const esp_timer_create_args_t program_timer_args = {
-      .callback = &timer_callback,
-      .name = "Program_timer"};
+    const esp_timer_create_args_t program_timer_args = {.callback = &timer_callback, .name = "Program_timer"};
 
     esp_timer_handle_t program_timer_handler;
     esp_timer_create(&program_timer_args, &program_timer_handler);
@@ -147,8 +146,10 @@ void app_main()
                 {
                     eProgram_state = READ_BUTTONS;
                 }
-                else if(second_number % WRITE_PERIOD == 0)
+                else if(second_number > second_number_write_memory_tmp)
                 {
+                    second_number_write_memory_tmp = second_number + WRITE_PERIOD;
+
                     eProgram_state = WRITE_MEMORY;
                 }
                 else
