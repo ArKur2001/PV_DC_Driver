@@ -13,6 +13,7 @@
 #include "LED/led.h"
 #include "esp_timer.h"
 
+#include "math.h"
 #include <stdio.h>
 
 #define PWM_DUTY_RES_BIT            7       //128
@@ -26,7 +27,7 @@
 #define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
-#define MEASUREMENT_DELAY           100     //3 time constants (ms)
+#define MEASUREMENT_DELAY           500     //3 time constants (ms)
 
 #define BUTTON_0_GPIO               14      //GPIO14  
 #define BUTTON_1_GPIO               27      //GPIO27
@@ -225,8 +226,8 @@ void app_main()
                 }
                 else
                 {
-                    voltage_value = get_voltage_value(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER), 128, PWM_DUTY_RES);
-                    current_value = 0.0;
+                    voltage_value = get_voltage_value_mean(adc_read_voltage(ADC_VOLTAGE_PIN, ADC_SAMPLES_NUMBER));
+                    current_value = get_voltage_value_mean(adc_read_voltage(ADC_CURRENT_PIN, ADC_SAMPLES_NUMBER));
                     power_value = 0.0;
 
                     eProgram_state = IDLE; 
@@ -242,6 +243,7 @@ void app_main()
             case MPPT:
                 uint8_t duty_cycle_temporary = 0;
                 double power_temporary = 0.0;
+                double power_diff = 0.0;
 
                 switch (eWater_Heating_Status)
                 {
@@ -252,19 +254,14 @@ void app_main()
 
                         break;
 
-                     case ALLOW_HEATING:
+                    case ALLOW_HEATING:
                         switch (eMPPT_stage)
                         {
                             case STAGE_SETUP:
-                                if(second_number_mppt_tmp > second_number)
-                                {
-                                    duty_cycle = duty_cycle;
 
-                                    eMPPT_stage = STAGE_SETUP;
+                                power_diff = fabs(power_opt - power_value);
 
-                                    eProgram_state = IDLE;
-                                }
-                                else
+                                if((second_number_mppt_tmp <= second_number) || (power_diff >= 20.0))
                                 {
                                     duty_cycle_tmp1 = 32;
                                     duty_cycle_tmp2 = 96;
@@ -279,6 +276,14 @@ void app_main()
 
                                     eMPPT_stage = STAGE_1;
                                     eProgram_state = MEASUREMENTS;
+                                }
+                                else
+                                {
+                                    duty_cycle = duty_cycle;
+
+                                    eMPPT_stage = STAGE_SETUP;
+
+                                    eProgram_state = IDLE;
                                 }
 
                                 break;
@@ -540,7 +545,6 @@ void app_main()
                                     power_temporary = power_buf;
                                 }
 
-
                                 if(power_temporary > power_opt)
                                 {
                                     power_opt = power_temporary;
@@ -552,15 +556,11 @@ void app_main()
                                     duty_cycle_opt = duty_cycle_opt;
                                 }
 
-                                printf("Power RMS value = %f W\n", power_value);
-
-                                duty_cycle_tmp1 = 0;
-                                duty_cycle_tmp2 = 0;
-                                power_opt = 0.0;
+                                printf("Power RMS value = %f W\n", power_value);              
 
                                 duty_cycle = duty_cycle_opt;
 
-                                second_number_mppt_tmp = second_number_mppt_tmp + MPPT_PERIOD;
+                                second_number_mppt_tmp = second_number + MPPT_PERIOD;
 
                                 eMPPT_stage = STAGE_SETUP;
                                 eProgram_state = MEASUREMENTS;
@@ -811,7 +811,7 @@ void app_main()
                         break;
 
                     case ALLOW_HEATING:
-                        if(temp_case >= 85 || temp_case <= 0 || temp_water <= 0)
+                        if(temp_case >= 75 || temp_case <= 0 || temp_water <= 0)
                         {
                             eWater_Heating_Status = STOP_HEATING;
 

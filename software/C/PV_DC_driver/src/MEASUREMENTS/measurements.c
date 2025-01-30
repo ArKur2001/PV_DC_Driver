@@ -35,3 +35,21 @@ double get_current_value(int voltage, float duty_value, float pwm_duty_resolutio
 
     return RMS_current_value;
 }
+
+double get_voltage_value_mean(int voltage)
+{
+    double RMS_voltage_value = 0.0;
+
+    RMS_voltage_value = (((voltage_reference_level - voltage) * voltage_multiplier_val)) / 1000.0;
+
+    return RMS_voltage_value;
+}
+
+double get_current_value_mean(int voltage)
+{
+    double RMS_current_value = 0.0;
+
+    RMS_current_value = (current_reference_level - voltage) / 100.0;
+
+    return RMS_current_value;
+}
