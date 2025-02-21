@@ -18,7 +18,7 @@ uint8_t but2_pin = 0;
 
 void Set_Button_0_state(void *arg)
 {
-    ets_delay_us(50);
+    ets_delay_us(100);
 
     if(gpio_get_level(but0_pin) == 1)
     {
@@ -32,7 +32,7 @@ void Set_Button_0_state(void *arg)
 
 void Set_Button_1_state(void* arg)
 {   
-    ets_delay_us(50);
+    ets_delay_us(100);
 
     ebut1_level = PRESSED;
     if(gpio_get_level(but1_pin) == 1)
@@ -47,7 +47,7 @@ void Set_Button_1_state(void* arg)
 
 void Set_Button_2_state(void* arg)
 {
-    ets_delay_us(50);
+    ets_delay_us(100);
 
     if(gpio_get_level(but2_pin) == 1)
     {

@@ -27,13 +27,13 @@
 #define ADC_SAMPLES_NUMBER          100     
 #define ADC_CURRENT_PIN             5       //ADC_CHANNEL_5(GPIO33)
 #define ADC_VOLTAGE_PIN             4       //ADC_CHANNEL_5(GPIO32)
-#define MEASUREMENT_DELAY           500     //3 time constants (ms)
+#define MEASUREMENT_DELAY           300     //3 time constants (ms)
 
 #define BUTTON_0_GPIO               14      //GPIO14  
 #define BUTTON_1_GPIO               27      //GPIO27
 #define BUTTON_2_GPIO               26      //GPIO26
 
-#define VOLTAGE_MULTIPLIER          19.88   //voltage_divider_value
+#define VOLTAGE_MULTIPLIER          189.86  // 19.88   //voltage_divider_value
 #define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
 #define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
@@ -53,7 +53,7 @@
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
-#define MPPT_PERIOD                 30      //s
+#define MPPT_PERIOD                 300     //s
 
 enum Program_state              {IDLE, READ_TEMP_BOILER, END_TIME, READ_TEMP_CASE, MEASUREMENTS, MPPT, READ_BUTTONS, UPDATE_SCREEN, WRITE_MEMORY, HEATING_STATUS};
 enum LCD_state                  {INFO, TEMPERATURE, BOILER_CAPACITY};
@@ -135,13 +135,9 @@ void app_main()
         switch (eProgram_state)
         {
             case IDLE:
-                if(loop_number % 101 == 0)
+                if(loop_number % 947 == 0)
                 {
                     eProgram_state = READ_TEMP_BOILER;
-                }
-                else if(loop_number % 211 == 0)
-                {
-                    eProgram_state = READ_TEMP_CASE;
                 }
                 else if(loop_number % 11 == 0)
                 {
@@ -165,11 +161,15 @@ void app_main()
                 break;
 
             case READ_TEMP_BOILER:
+                PWM_duty_cycle(0);
+
                 temp_water = ds18b20_get_temp(DS18B20_GPIO1);
+
+                PWM_duty_cycle(duty_cycle);
 
                 printf("Temp_boiler = %f C\n", temp_water); 
 
-                eProgram_state = HEATING_STATUS;
+                eProgram_state = READ_TEMP_CASE;
 
                 break;
 
@@ -198,7 +198,11 @@ void app_main()
                 break;
 
             case READ_TEMP_CASE:
+                PWM_duty_cycle(0);
+
                 temp_case = ds18b20_get_temp(DS18B20_GPIO2);
+
+                PWM_duty_cycle(duty_cycle);
 
                 printf("Temp_case = %f C\n", temp_case); 
 
