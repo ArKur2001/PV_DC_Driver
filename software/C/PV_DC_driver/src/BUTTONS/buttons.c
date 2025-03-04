@@ -18,49 +18,106 @@ uint8_t but2_pin = 0;
 
 void Set_Button_0_state(void *arg)
 {
-    ets_delay_us(50);
+    uint8_t counter = 0;
 
-    if(gpio_get_level(but0_pin) == 0)
+    gpio_intr_disable(but0_pin);
+
+    ets_delay_us(10);
+
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if(gpio_get_level(but0_pin) == 0)
+        {
+            counter++;
+        }
+        else
+        {
+            counter = counter;
+        }
+
+        ets_delay_us(10);
+    }
+
+
+    if(counter == 2)
     {
         ebut0_level = PRESSED;
-
-        gpio_intr_disable(but0_pin);
     }
     else
     {
         ebut0_level = RELEASED;
+
+        gpio_intr_enable(but0_pin);
     } 
 }
 
 void Set_Button_1_state(void* arg)
 {   
-    ets_delay_us(50);
+    uint8_t counter = 0;
 
-    if(gpio_get_level(but1_pin) == 0)
+    gpio_intr_disable(but1_pin);
+
+    ets_delay_us(10);
+
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if(gpio_get_level(but1_pin) == 0)
+        {
+            counter++;
+        }
+        else
+        {
+            counter = counter;
+        }
+
+        ets_delay_us(10);
+    }
+    
+
+    if(counter == 2)
     {
         ebut1_level = PRESSED;
-
-        gpio_intr_disable(but1_pin);
     }
     else
     {
         ebut1_level = RELEASED;
+
+        gpio_intr_enable(but1_pin);
     } 
 } 
 
 void Set_Button_2_state(void* arg)
 {
-    ets_delay_us(50);
+    uint8_t counter = 0;
 
-    if(gpio_get_level(but2_pin) == 0)
+    gpio_intr_disable(but2_pin);
+
+    ets_delay_us(10);
+
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if(gpio_get_level(but2_pin) == 0)
+        {
+            counter++;
+        }
+        else
+        {
+            counter = counter;
+        }
+
+        ets_delay_us(10);
+    }
+
+
+    if(counter == 2)
     {
         ebut2_level = PRESSED;
-
-        gpio_intr_disable(but2_pin);
     }
     else
     {
         ebut2_level = RELEASED;
+
+        gpio_intr_enable(but2_pin);
     } 
 } 
 
@@ -112,36 +169,36 @@ enum Button_State eButton_Read(enum Button_Name eButton_Name)
             break;
 
         case BUTTON_1:
-        if(gpio_get_level(but1_pin) == 1)
-        {
-            ebut_level = ebut1_level;
-            ebut1_level = RELEASED; 
-
-            gpio_intr_enable(but1_pin);
-
-            return ebut_level;
-        }
-        else
-        {
-            return RELEASED;
-        }
-        break;
+            if(gpio_get_level(but1_pin) == 1)
+            {
+                ebut_level = ebut1_level;
+                ebut1_level = RELEASED; 
+            
+                gpio_intr_enable(but1_pin);
+            
+                return ebut_level;
+            }
+            else
+            {
+                return RELEASED;
+            }
+            break;
 
         case BUTTON_2:
-        if(gpio_get_level(but2_pin) == 1)
-        {
-            ebut_level = ebut2_level;
-            ebut2_level = RELEASED; 
+            if(gpio_get_level(but2_pin) == 1)
+            {
+                ebut_level = ebut2_level;
+                ebut2_level = RELEASED; 
 
-            gpio_intr_enable(but2_pin);
+                gpio_intr_enable(but2_pin);
 
-            return ebut_level;
-        }
-        else
-        {
-            return RELEASED;
-        }
-        break;
+                return ebut_level;
+            }
+            else
+            {
+                return RELEASED;
+            }
+            break;
 
         default:
             return RELEASED;
