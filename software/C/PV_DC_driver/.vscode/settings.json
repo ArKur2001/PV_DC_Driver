@@ -1,3 +1,11 @@
 {
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "lcd_string.h": "c",
+        "hd44780.h": "c",
+        "measurements.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
+    }
 }
