@@ -40,50 +40,55 @@
 #define DS18B20_GPIO1               4       //boiler temperature sensor
 #define DS18B20_GPIO2               5       //case temperature sensor
 
-#define SPECIFIC_HEAT_WATER         4200    //J/kg
 #define WRITE_PERIOD                3600    //s
-#define LCD_BACKLIGHT_PERIOD        60      //s
 
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
 #define MPPT_PERIOD                 300     //s
 
-uint64_t second_number = 0;
-
 double power_value = 0.0;
-
-uint64_t energy_j = 0.0;
-
-void timer_callback(void *param)
-{
-    second_number++;
-    printf("second_number = %" PRIu64 "\n", second_number);
-
-    energy_j = energy_j + power_value;
-
-    //printf("energy = %" PRIu64 " J\n", energy_j);
-}
 
 QueueHandle_t BoilerSettings_queue;
 QueueHandle_t ElectricalMeasurements_queue; 
 QueueHandle_t TemperatureReadings_queue;
+QueueHandle_t TimerData_queue;
+
+void timer_callback(void *param)
+{
+    static TimerData TimerData_data = {0, 0};
+    ElectricalMeasurements ElectricalMeasurements_data = {0.0, 0.0, 0.0};
+
+    if (xQueuePeek(TimerData_queue, &TimerData_data, 0) == pdTRUE && xQueuePeek(ElectricalMeasurements_queue, &ElectricalMeasurements_data, 0)) 
+    {
+        TimerData_data.second_number++;
+        TimerData_data.energy_j += ElectricalMeasurements_data.power_value;
+
+        printf("second_number = %" PRIu64 "\n", TimerData_data.second_number);
+        printf("energy = %" PRIu64 " J\n", TimerData_data.energy_j);
+
+        xQueueOverwrite(TimerData_queue, &TimerData_data);
+    } 
+    else 
+    {
+        TimerData_data.second_number = 0;
+        TimerData_data.energy_j = 0;
+        xQueueSend(TimerData_queue, &TimerData_data, 0);
+    }
+}
 
 void queue_init()
 { 
     BoilerSettings BoilerSettings_data = {50, 100};
     ElectricalMeasurements ElectricalMeasurements_data = {100.0, 10.0, 1000.0};
-    TemperatureReadings TemperatureReadings_data = {50.0, 20.0};
+    TemperatureReadings TemperatureReadings_data = {25.0, 20.0};
+    TimerData TimerData_data = {0, 4000000};
 
-    // Wysłanie początkowego stanu do kolejki, aby uniknąć pustej kolejki
+    
     xQueueSend(BoilerSettings_queue, &BoilerSettings_data, pdMS_TO_TICKS(100));
     xQueueSend(ElectricalMeasurements_queue, &ElectricalMeasurements_data, pdMS_TO_TICKS(100));
     xQueueSend(TemperatureReadings_queue, &TemperatureReadings_data, pdMS_TO_TICKS(100));
-}
-
-void test_send()
-{
-    Task_User(BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, second_number, energy_j);
+    xQueueSend(TimerData_queue, &TimerData_data, pdMS_TO_TICKS(100));
 }
 
 void test_receive()
@@ -94,8 +99,8 @@ void test_receive()
     {
         xQueuePeek(BoilerSettings_queue, &data, pdMS_TO_TICKS(100));
 
-        printf("The value8 is: %hhu\n", data.desired_temperature);
-        printf("The value16 is: %hu\n",  data.boiler_capacity);
+        printf("desired temp is: %hhu\n", data.desired_temperature);
+        printf("boiler capacity is: %hu\n",  data.boiler_capacity);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -118,9 +123,12 @@ void app_main()
     BoilerSettings_queue = xQueueCreate(1, sizeof(BoilerSettings));
     ElectricalMeasurements_queue = xQueueCreate(1, sizeof(ElectricalMeasurements));
     TemperatureReadings_queue = xQueueCreate(1, sizeof(TemperatureReadings));
+    TimerData_queue = xQueueCreate(1, sizeof(TimerData));
 
     queue_init();
 
-    xTaskCreate(test_send, "Task_User", 4096, NULL, 20, NULL);
-    xTaskCreate(test_receive, "Task_User", 4096, NULL, 20, NULL);
+    TaskUserParameters Task_User_params = {BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, TimerData_queue};
+
+    xTaskCreate(Task_User, "Task_User", 4096, &Task_User_params, 20, NULL);
+    xTaskCreate(test_receive, "Task_Receive", 4096, NULL, 10, NULL);
 }
