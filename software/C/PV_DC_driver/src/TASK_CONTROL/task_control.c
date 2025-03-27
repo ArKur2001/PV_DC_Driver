@@ -1,11 +1,11 @@
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <inttypes.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "inttypes.h"
 #include "TASK_CONTROL/task_control.h"
-#include <math.h>
+#include "math.h"
 #include "DS18B20/ds18b20.h"
 #include "LED/led.h"
-#include <PWM/pwm.h>
+#include "PWM/pwm.h"
 #include "data_structures.h"
 
 #define CASE_MAX_TEMP                   75
@@ -224,6 +224,8 @@ void Task_Control(void *pvParameters)
         default:
             eTask_Control_state = RECEIVE;
 
+            vTaskDelay(pdMS_TO_TICKS(10));
+            
             break;
         }
     }

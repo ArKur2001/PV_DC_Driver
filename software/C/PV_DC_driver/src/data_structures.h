@@ -54,4 +54,9 @@ typedef struct {
     uint8_t case_sensor_pin;
 } TaskControlParameters;
 
+typedef struct {
+    QueueHandle_t BoilerSettings_queue;
+    QueueHandle_t TimerData_queue;
+} TaskMemoryParameters;
+
 #endif // DATA_STRUCTURES_H

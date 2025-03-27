@@ -5,11 +5,13 @@
 #include "inttypes.h"
 #include "TASK_USER/task_user.h"
 #include "TASK_CONTROL/task_control.h"
+#include "TASK_MEMORY/task_memory.h"
 #include "BUTTONS/buttons.h"
 #include "LCD/HD44780.h"
 #include "LCD/LCD_string.h"
 #include "LED/led.h"
 #include <PWM/pwm.h>
+#include "MEMORY/memory.h"
 #include "data_structures.h"
 #include "esp_timer.h"
 
@@ -43,8 +45,6 @@
 #define DS18B20_BOILER_PIN          4       //boiler temperature sensor
 #define DS18B20_CASE_PIN            5       //case temperature sensor
 
-#define WRITE_PERIOD                3600    //s
-
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
@@ -58,8 +58,8 @@ QueueHandle_t MPPTData_queue;
 
 void timer_callback(void *param)
 {
-    static TimerData TimerData_data = {0, 0};
-    ElectricalMeasurements ElectricalMeasurements_data = {0.0, 0.0, 0.0};
+    TimerData TimerData_data;
+    ElectricalMeasurements ElectricalMeasurements_data;
 
     if (xQueuePeek(TimerData_queue, &TimerData_data, 0) == pdTRUE && xQueuePeek(ElectricalMeasurements_queue, &ElectricalMeasurements_data, 0)) 
     {
@@ -67,25 +67,27 @@ void timer_callback(void *param)
         TimerData_data.energy_j += ElectricalMeasurements_data.power_value;
 
         //printf("second_number = %" PRIu64 "\n", TimerData_data.second_number);
-        //printf("energy = %" PRIu64 " J\n", TimerData_data.energy_j);
+        printf("energy = %" PRIu64 " J\n", TimerData_data.energy_j);
 
         xQueueOverwrite(TimerData_queue, &TimerData_data);
     } 
-    else 
-    {
-        TimerData_data.second_number = 0;
-        TimerData_data.energy_j = 0;
-        xQueueOverwrite(TimerData_queue, &TimerData_data);
-    }
 }
 
 void queue_init()
 { 
-    BoilerSettings BoilerSettings_data = {50, 100};
-    ElectricalMeasurements ElectricalMeasurements_data = {100.0, 10.0, 100.0};
+    uint8_t  desired_temperature;
+    uint16_t boiler_capacity;
+    uint64_t energy_j;
+
+    flash_read(&desired_temperature, &boiler_capacity, &energy_j);
+
+    printf("energy = %" PRIu64 " J\n", energy_j);
+
+    BoilerSettings BoilerSettings_data = {desired_temperature, boiler_capacity};
+    ElectricalMeasurements ElectricalMeasurements_data = {100.0, 10.0, 1000.0};
     TemperatureReadings TemperatureReadings_data = {50.0, 50.0};
-    TimerData TimerData_data = {0, 4000000};
-    MPPTData MPPTData_data = {100.0, MPPT_NOT_ALLOWED};
+    TimerData TimerData_data = {0, energy_j};
+    MPPTData MPPTData_data = {1000.0, MPPT_NOT_ALLOWED};
     
     xQueueSend(BoilerSettings_queue, &BoilerSettings_data, pdMS_TO_TICKS(100));
     xQueueSend(ElectricalMeasurements_queue, &ElectricalMeasurements_data, pdMS_TO_TICKS(100));
@@ -106,8 +108,8 @@ void test_receive()
         xQueuePeek(TemperatureReadings_queue, &boiler_data, pdMS_TO_TICKS(0));
         xQueuePeek(MPPTData_queue, &mppt_data, pdMS_TO_TICKS(0));
 
-        printf("boiler temp is: %f\n", boiler_data.temp_water);
-        printf("case temp is: %f\n",  boiler_data.temp_case);
+        //printf("boiler temp is: %f\n", boiler_data.temp_water);
+        //printf("case temp is: %f\n",  boiler_data.temp_case);
 
         if(mppt_data.eMPPT_Permission == MPPT_ALLOWED)
         {
@@ -155,8 +157,10 @@ void app_main()
 
     TaskUserParameters Task_User_params = {BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, TimerData_queue};
     TaskControlParameters Task_Control_params = {BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, TimerData_queue, MPPTData_queue, DS18B20_BOILER_PIN, DS18B20_CASE_PIN};
+    TaskMemoryParameters Task_Memory_params = {BoilerSettings_queue, TimerData_queue};
 
     xTaskCreate(Task_User, "Task_User", 4096, &Task_User_params, 20, NULL);
     xTaskCreate(Task_Control, "Task_Control", 4096, &Task_Control_params, 30, NULL);
+    xTaskCreate(Task_Memory, "Task_Memory", 4096, &Task_Memory_params, 10, NULL);
     xTaskCreate(test_receive, "Task_Receive", 4096, NULL, 10, NULL);
 }

@@ -1,6 +1,5 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/queue.h"
 #include "inttypes.h"
 #include "TASK_USER/task_user.h"
 #include "BUTTONS/buttons.h"
@@ -14,7 +13,7 @@
 enum Task_User_state    {RECEIVE, UPDATE_BOILER_SETTINGS, END_TIME, UPDATE_SCREEN, SEND};
 enum LCD_state          {INFO, TEMPERATURE, BOILER_CAPACITY};
 
-void UpdateBoilerSettings(enum LCD_state eLCD_state, BoilerSettings *BoilerSettings_data, uint64_t second_number, uint64_t *second_number_lcd_tmp)
+void Update_Boiler_Settings(enum LCD_state eLCD_state, BoilerSettings *BoilerSettings_data, uint64_t second_number, uint64_t *second_number_lcd_tmp)
 {
     if(eButton_Read(BUTTON_0) == PRESSED)
         {
@@ -219,7 +218,7 @@ void Task_User(void *pvParameters)
                 break;
 
             case UPDATE_BOILER_SETTINGS:
-                UpdateBoilerSettings(eLCD_state, &BoilerSettings_data, TimerData_data.second_number, &second_number_lcd_tmp);
+                Update_Boiler_Settings(eLCD_state, &BoilerSettings_data, TimerData_data.second_number, &second_number_lcd_tmp);
 
                 eTask_User_state = END_TIME;
 
@@ -250,6 +249,8 @@ void Task_User(void *pvParameters)
 
             default:
                 eTask_User_state = RECEIVE;
+
+                vTaskDelay(pdMS_TO_TICKS(10));
 
                 break;
         }
