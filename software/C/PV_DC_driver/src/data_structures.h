@@ -2,6 +2,9 @@
 #define DATA_STRUCTURES_H
 
 #include <inttypes.h>
+#include "freertos/queue.h"
+
+enum MPPT_Permission {MPPT_NOT_ALLOWED, MPPT_ALLOWED};
 
 //========================QUEUES==========================
 
@@ -26,6 +29,12 @@ typedef struct {
     float temp_case; 
 } TemperatureReadings;
 
+typedef struct {
+    double power_opt;
+    enum MPPT_Permission eMPPT_Permission;
+} MPPTData;
+
+
 //========================TASKS===========================
 
 typedef struct {
@@ -34,5 +43,15 @@ typedef struct {
     QueueHandle_t TemperatureReadings_queue;
     QueueHandle_t TimerData_queue;
 } TaskUserParameters;
+
+typedef struct {
+    QueueHandle_t BoilerSettings_queue;
+    QueueHandle_t ElectricalMeasurements_queue;
+    QueueHandle_t TemperatureReadings_queue;
+    QueueHandle_t TimerData_queue;
+    QueueHandle_t MPPTData_queue;
+    uint8_t boiler_sensor_pin;
+    uint8_t case_sensor_pin;
+} TaskControlParameters;
 
 #endif // DATA_STRUCTURES_H

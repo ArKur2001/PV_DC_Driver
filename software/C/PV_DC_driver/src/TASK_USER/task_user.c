@@ -1,4 +1,3 @@
-#include "string.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -12,7 +11,7 @@
 #define SPECIFIC_HEAT_WATER         4200    //J/kg
 #define LCD_BACKLIGHT_PERIOD        60      //s
 
-enum Task_user_state    {RECEIVE, UPDATE_BOILER_SETTINGS, END_TIME, UPDATE_SCREEN, SEND};
+enum Task_User_state    {RECEIVE, UPDATE_BOILER_SETTINGS, END_TIME, UPDATE_SCREEN, SEND};
 enum LCD_state          {INFO, TEMPERATURE, BOILER_CAPACITY};
 
 void UpdateBoilerSettings(enum LCD_state eLCD_state, BoilerSettings *BoilerSettings_data, uint64_t second_number, uint64_t *second_number_lcd_tmp)
@@ -22,20 +21,27 @@ void UpdateBoilerSettings(enum LCD_state eLCD_state, BoilerSettings *BoilerSetti
             switch (eLCD_state)
             {
                 case INFO:
+
                     break;
+
                 case TEMPERATURE:
-                        if(BoilerSettings_data->desired_temperature > 0)
+                        if(BoilerSettings_data->desired_temperature > 10)
                         {
                             BoilerSettings_data->desired_temperature--;
                         }
+
                     break;
+
                 case BOILER_CAPACITY:
                         if(BoilerSettings_data->boiler_capacity > 10)
                         {
                             BoilerSettings_data->boiler_capacity -= 10;
                         }
+
                     break;
+
                 default:
+
                     break;
             }
             *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
@@ -45,20 +51,27 @@ void UpdateBoilerSettings(enum LCD_state eLCD_state, BoilerSettings *BoilerSetti
             switch (eLCD_state)
             {
                 case INFO:
+
                     break;
+
                 case TEMPERATURE:
                         if(BoilerSettings_data->desired_temperature < 85)
                         {
                             BoilerSettings_data->desired_temperature++;
                         }
+
                     break;
+
                  case BOILER_CAPACITY:
                         if( BoilerSettings_data->boiler_capacity < 10000)
                         {
                             BoilerSettings_data->boiler_capacity += 10;
                         }
+
                     break;
+
                 default:
+
                     break;
             }
             *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
@@ -176,30 +189,29 @@ void Task_User(void *pvParameters)
     static TemperatureReadings TemperatureReadings_data = {0.0, 0.0};
     static TimerData TimerData_data = {0, 0};
 
-    static enum Task_user_state e_Task_user_state = RECEIVE;
+    static enum Task_User_state eTask_User_state = RECEIVE;
     static enum LCD_state eLCD_state = INFO;
     
     static uint8_t hours_tmp = 0;
     static uint8_t minutes_tmp = 0;
 
-    static uint64_t second_number_lcd_tmp = 60;
+    static uint64_t second_number_lcd_tmp = LCD_BACKLIGHT_PERIOD;
 
     while(1)
     {
-        switch (e_Task_user_state)
+        switch (eTask_User_state)
         {
             case RECEIVE:
-
-                if (xQueuePeek(BoilerSettings_queue, &BoilerSettings_data, pdMS_TO_TICKS(100)) == pdTRUE && 
-                    xQueuePeek(ElectricalMeasurements_queue, &ElectricalMeasurements_data, pdMS_TO_TICKS(100)) == pdTRUE && 
-                    xQueuePeek(TemperatureReadings_queue, &TemperatureReadings_data, pdMS_TO_TICKS(100)) == pdTRUE &&
-                    xQueuePeek(TimerData_queue, &TimerData_data, pdMS_TO_TICKS(100)) == pdTRUE)
+                if (xQueuePeek(BoilerSettings_queue, &BoilerSettings_data, pdMS_TO_TICKS(0)) == pdTRUE && 
+                    xQueuePeek(ElectricalMeasurements_queue, &ElectricalMeasurements_data, pdMS_TO_TICKS(0)) == pdTRUE && 
+                    xQueuePeek(TemperatureReadings_queue, &TemperatureReadings_data, pdMS_TO_TICKS(0)) == pdTRUE &&
+                    xQueuePeek(TimerData_queue, &TimerData_data, pdMS_TO_TICKS(0)) == pdTRUE)
                 {
-                    e_Task_user_state = UPDATE_BOILER_SETTINGS;
+                    eTask_User_state = UPDATE_BOILER_SETTINGS;
                 }
                 else
                 {
-                    e_Task_user_state = RECEIVE;
+                    eTask_User_state = RECEIVE;
 
                     vTaskDelay(pdMS_TO_TICKS(10));
                 }
@@ -209,35 +221,35 @@ void Task_User(void *pvParameters)
             case UPDATE_BOILER_SETTINGS:
                 UpdateBoilerSettings(eLCD_state, &BoilerSettings_data, TimerData_data.second_number, &second_number_lcd_tmp);
 
-                e_Task_user_state = END_TIME;
+                eTask_User_state = END_TIME;
 
             break;
 
             case END_TIME:
                 End_Time(BoilerSettings_data, ElectricalMeasurements_data, TemperatureReadings_data, &hours_tmp, &minutes_tmp);
 
-                e_Task_user_state = UPDATE_SCREEN;
+                eTask_User_state = UPDATE_SCREEN;
 
                 break;
 
             case UPDATE_SCREEN:
                 Update_Screen(&eLCD_state, BoilerSettings_data, ElectricalMeasurements_data, TemperatureReadings_data, TimerData_data.second_number, &second_number_lcd_tmp, TimerData_data.energy_j, hours_tmp, minutes_tmp);
 
-                e_Task_user_state = SEND;
+                eTask_User_state = SEND;
 
                 break;
 
             case SEND:
                 xQueueOverwrite(BoilerSettings_queue, &BoilerSettings_data);
 
-                e_Task_user_state = RECEIVE;
+                eTask_User_state = RECEIVE;
 
                 vTaskDelay(pdMS_TO_TICKS(10));
 
                 break;
 
             default:
-                e_Task_user_state = RECEIVE;
+                eTask_User_state = RECEIVE;
 
                 break;
         }

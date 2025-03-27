@@ -4,9 +4,12 @@
 #include "freertos/queue.h"
 #include "inttypes.h"
 #include "TASK_USER/task_user.h"
+#include "TASK_CONTROL/task_control.h"
 #include "BUTTONS/buttons.h"
 #include "LCD/HD44780.h"
 #include "LCD/LCD_string.h"
+#include "LED/led.h"
+#include <PWM/pwm.h>
 #include "data_structures.h"
 #include "esp_timer.h"
 
@@ -37,15 +40,13 @@
 #define LCD_COLS                    20
 #define LCD_ROWS                    4
 
-#define DS18B20_GPIO1               4       //boiler temperature sensor
-#define DS18B20_GPIO2               5       //case temperature sensor
+#define DS18B20_BOILER_PIN          4       //boiler temperature sensor
+#define DS18B20_CASE_PIN            5       //case temperature sensor
 
 #define WRITE_PERIOD                3600    //s
 
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
-
-#define MPPT_PERIOD                 300     //s
 
 double power_value = 0.0;
 
@@ -53,6 +54,7 @@ QueueHandle_t BoilerSettings_queue;
 QueueHandle_t ElectricalMeasurements_queue; 
 QueueHandle_t TemperatureReadings_queue;
 QueueHandle_t TimerData_queue;
+QueueHandle_t MPPTData_queue;
 
 void timer_callback(void *param)
 {
@@ -64,8 +66,8 @@ void timer_callback(void *param)
         TimerData_data.second_number++;
         TimerData_data.energy_j += ElectricalMeasurements_data.power_value;
 
-        printf("second_number = %" PRIu64 "\n", TimerData_data.second_number);
-        printf("energy = %" PRIu64 " J\n", TimerData_data.energy_j);
+        //printf("second_number = %" PRIu64 "\n", TimerData_data.second_number);
+        //printf("energy = %" PRIu64 " J\n", TimerData_data.energy_j);
 
         xQueueOverwrite(TimerData_queue, &TimerData_data);
     } 
@@ -73,34 +75,56 @@ void timer_callback(void *param)
     {
         TimerData_data.second_number = 0;
         TimerData_data.energy_j = 0;
-        xQueueSend(TimerData_queue, &TimerData_data, 0);
+        xQueueOverwrite(TimerData_queue, &TimerData_data);
     }
 }
 
 void queue_init()
 { 
     BoilerSettings BoilerSettings_data = {50, 100};
-    ElectricalMeasurements ElectricalMeasurements_data = {100.0, 10.0, 1000.0};
-    TemperatureReadings TemperatureReadings_data = {25.0, 20.0};
+    ElectricalMeasurements ElectricalMeasurements_data = {100.0, 10.0, 100.0};
+    TemperatureReadings TemperatureReadings_data = {50.0, 50.0};
     TimerData TimerData_data = {0, 4000000};
-
+    MPPTData MPPTData_data = {100.0, MPPT_NOT_ALLOWED};
     
     xQueueSend(BoilerSettings_queue, &BoilerSettings_data, pdMS_TO_TICKS(100));
     xQueueSend(ElectricalMeasurements_queue, &ElectricalMeasurements_data, pdMS_TO_TICKS(100));
     xQueueSend(TemperatureReadings_queue, &TemperatureReadings_data, pdMS_TO_TICKS(100));
     xQueueSend(TimerData_queue, &TimerData_data, pdMS_TO_TICKS(100));
+    xQueueSend(MPPTData_queue, &MPPTData_data, pdMS_TO_TICKS(100));
 }
 
 void test_receive()
 {
-    BoilerSettings data;
+    static TemperatureReadings boiler_data;
+    static MPPTData mppt_data;
     
     while(1)
     {
-        xQueuePeek(BoilerSettings_queue, &data, pdMS_TO_TICKS(100));
+        static uint16_t pwm = 0;
 
-        printf("desired temp is: %hhu\n", data.desired_temperature);
-        printf("boiler capacity is: %hu\n",  data.boiler_capacity);
+        xQueuePeek(TemperatureReadings_queue, &boiler_data, pdMS_TO_TICKS(0));
+        xQueuePeek(MPPTData_queue, &mppt_data, pdMS_TO_TICKS(0));
+
+        printf("boiler temp is: %f\n", boiler_data.temp_water);
+        printf("case temp is: %f\n",  boiler_data.temp_case);
+
+        if(mppt_data.eMPPT_Permission == MPPT_ALLOWED)
+        {
+            printf("MPPT_allowed\n");
+
+            mppt_data.eMPPT_Permission = MPPT_NOT_ALLOWED;
+
+            xQueueOverwrite(MPPTData_queue, &mppt_data);
+        }
+        else
+        {
+            //printf("MPPT_not_allowed\n");
+        }
+
+        PWM_duty_cycle(pwm % 128);
+
+        pwm++;
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -109,8 +133,9 @@ void test_receive()
 void app_main() 
 {
     Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO, BUTTON_2_GPIO);
-
     LCD_init(LCD_ADDR, SDA_PIN, SCL_PIN, LCD_COLS, LCD_ROWS);
+    Led_Init(LED_GREEN_PIN, LED_RED_PIN);
+    PWM_init(PWM_DUTY_RES_BIT, PWM_PIN, PWM_FREQUENCY);
    
     const esp_timer_create_args_t program_timer_args = {.callback = &timer_callback, .name = "Program_timer"};
 
@@ -124,11 +149,14 @@ void app_main()
     ElectricalMeasurements_queue = xQueueCreate(1, sizeof(ElectricalMeasurements));
     TemperatureReadings_queue = xQueueCreate(1, sizeof(TemperatureReadings));
     TimerData_queue = xQueueCreate(1, sizeof(TimerData));
+    MPPTData_queue = xQueueCreate(1, sizeof(MPPTData));
 
     queue_init();
 
     TaskUserParameters Task_User_params = {BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, TimerData_queue};
+    TaskControlParameters Task_Control_params = {BoilerSettings_queue, ElectricalMeasurements_queue, TemperatureReadings_queue, TimerData_queue, MPPTData_queue, DS18B20_BOILER_PIN, DS18B20_CASE_PIN};
 
     xTaskCreate(Task_User, "Task_User", 4096, &Task_User_params, 20, NULL);
+    xTaskCreate(Task_Control, "Task_Control", 4096, &Task_Control_params, 30, NULL);
     xTaskCreate(test_receive, "Task_Receive", 4096, NULL, 10, NULL);
 }

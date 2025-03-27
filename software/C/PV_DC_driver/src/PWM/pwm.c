@@ -6,6 +6,8 @@
 #define PWM_CLK                LEDC_AUTO_CLK
 #define PWM_CHANNEL            LEDC_CHANNEL_0
 
+enum PWM_State ePWM_State = PWM_OFF;
+
 void PWM_init(uint8_t duty_resolution, uint8_t output_pin ,uint32_t frequency)
 {
     ledc_timer_config_t pwm_timer = {
@@ -29,9 +31,38 @@ void PWM_init(uint8_t duty_resolution, uint8_t output_pin ,uint32_t frequency)
     ledc_channel_config(&pwm_channel);
 }
 
-void PWM_duty_cycle(u_int16_t duty_cycle)
+void PWM_control(enum PWM_State ePWM_State_control)
 {
-    ledc_set_duty(PWM_MODE, PWM_CHANNEL, duty_cycle);
-    ledc_update_duty(PWM_MODE, PWM_CHANNEL);
+    ePWM_State = ePWM_State_control;
 }
 
+enum PWM_State PWM_get_state()
+{
+    return ePWM_State;
+}
+
+void PWM_duty_cycle(u_int16_t PWM_duty_cycle)
+{
+    static u_int16_t duty_cycle = 0;
+
+    duty_cycle = PWM_duty_cycle;
+
+    switch (ePWM_State)
+    {
+    case PWM_ON:
+        ledc_set_duty(PWM_MODE, PWM_CHANNEL, duty_cycle);
+        ledc_update_duty(PWM_MODE, PWM_CHANNEL);
+
+        break;
+
+    case PWM_OFF:
+        ledc_set_duty(PWM_MODE, PWM_CHANNEL, 0);
+        ledc_update_duty(PWM_MODE, PWM_CHANNEL);
+        break;
+    
+    default:
+        ledc_set_duty(PWM_MODE, PWM_CHANNEL, 0);
+        ledc_update_duty(PWM_MODE, PWM_CHANNEL);
+        break;
+    }
+}
