@@ -12,7 +12,7 @@
 #define ERROR_TEMP                      0
 #define TEMPERATURE_MEASUREMENT_PERIOD  10  //s
 
-#define MPPT_PERIOD                     30  //s
+#define MPPT_PERIOD                     300  //s
 #define MPPT_POWER_DIFF                 50
 
 enum Task_Control_state     {RECEIVE, READ_TEMP, HEATING_CONTROL, MPPT_CONTROL, SET_LED, SEND};
@@ -42,6 +42,8 @@ void Read_Temp(TemperatureReadings *TemperatureReadings_data, enum Water_Heating
 
         TemperatureReadings_data->temp_water = ds18b20_get_temp(boiler_sensor_pin);
         TemperatureReadings_data->temp_case = ds18b20_get_temp(case_sensor_pin);
+
+        printf("boiler temp is: %f\n", TemperatureReadings_data->temp_water);
 
         second_number_temp = second_number + TEMPERATURE_MEASUREMENT_PERIOD;
 
@@ -85,15 +87,21 @@ void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeas
     static enum Water_Heating_Status eWater_Heating_Status_previous = STOP_HEATING;
     static uint64_t second_number_mppt = 0;
 
-    double power_diff = 0.0;
-    
-    power_diff = fabs(MPPTData_data->power_opt - ElectricalMeasurements_data.power_value);
+    double power_diff = fabs(MPPTData_data->power_opt - ElectricalMeasurements_data.power_value);
 
-    if((eWater_Heating_Status == ALLOW_HEATING) && ((second_number_mppt <= second_number || power_diff >= MPPT_POWER_DIFF) || eWater_Heating_Status_previous != ALLOW_HEATING))
+    if (eWater_Heating_Status == ALLOW_HEATING)  
     {
-        MPPTData_data->eMPPT_Permission = MPPT_ALLOWED;
-
-        second_number_mppt = second_number + MPPT_PERIOD;
+        if (((power_diff >= MPPT_POWER_DIFF && ElectricalMeasurements_data.power_value != 0) || second_number >= second_number_mppt) || (eWater_Heating_Status_previous != ALLOW_HEATING)) 
+        {
+            MPPTData_data->eMPPT_Permission = MPPT_ALLOWED;
+            second_number_mppt = second_number + MPPT_PERIOD; 
+            
+            printf("Power diff = %f W\n", power_diff); 
+        }
+        else
+        {
+            MPPTData_data->eMPPT_Permission = MPPT_NOT_ALLOWED;
+        }
     }
     else
     {
@@ -101,7 +109,10 @@ void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeas
     }
 
     eWater_Heating_Status_previous = eWater_Heating_Status;
+
+    //printf("TimerData.second_number = %" PRIu64 ", second_number_mppt = %" PRIu64 "\n", second_number, second_number_mppt);
 }
+
 
 void Set_Led(enum Water_Heating_Status eWater_Heating_Status)
 {

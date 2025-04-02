@@ -16,65 +16,65 @@ enum LCD_state          {INFO, TEMPERATURE, BOILER_CAPACITY};
 void Update_Boiler_Settings(enum LCD_state eLCD_state, BoilerSettings *BoilerSettings_data, uint64_t second_number, uint64_t *second_number_lcd_tmp)
 {
     if(eButton_Read(BUTTON_0) == PRESSED)
+    {
+        switch (eLCD_state)
         {
-            switch (eLCD_state)
-            {
-                case INFO:
+            case INFO:
 
-                    break;
+                break;
 
-                case TEMPERATURE:
-                        if(BoilerSettings_data->desired_temperature > 10)
-                        {
-                            BoilerSettings_data->desired_temperature--;
-                        }
+            case TEMPERATURE:
+                    if(BoilerSettings_data->desired_temperature > 10)
+                    {
+                        BoilerSettings_data->desired_temperature--;
+                    }
 
-                    break;
+                break;
+
+            case BOILER_CAPACITY:
+                    if(BoilerSettings_data->boiler_capacity > 10)
+                    {
+                        BoilerSettings_data->boiler_capacity -= 10;
+                    }
+
+                break;
+
+            default:
+
+                break;
+        }
+        *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
+    }
+    else if(eButton_Read(BUTTON_2) == PRESSED)
+    {
+        switch (eLCD_state)
+        {
+            case INFO:
+
+                break;
+
+            case TEMPERATURE:
+                    if(BoilerSettings_data->desired_temperature < 85)
+                    {
+                        BoilerSettings_data->desired_temperature++;
+                    }
+
+                break;
 
                 case BOILER_CAPACITY:
-                        if(BoilerSettings_data->boiler_capacity > 10)
-                        {
-                            BoilerSettings_data->boiler_capacity -= 10;
-                        }
+                    if( BoilerSettings_data->boiler_capacity < 10000)
+                    {
+                        BoilerSettings_data->boiler_capacity += 10;
+                    }
 
-                    break;
+                break;
 
-                default:
+            default:
 
-                    break;
-            }
-            *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
+                break;
         }
-        else if(eButton_Read(BUTTON_2) == PRESSED)
-        {
-            switch (eLCD_state)
-            {
-                case INFO:
-
-                    break;
-
-                case TEMPERATURE:
-                        if(BoilerSettings_data->desired_temperature < 85)
-                        {
-                            BoilerSettings_data->desired_temperature++;
-                        }
-
-                    break;
-
-                 case BOILER_CAPACITY:
-                        if( BoilerSettings_data->boiler_capacity < 10000)
-                        {
-                            BoilerSettings_data->boiler_capacity += 10;
-                        }
-
-                    break;
-
-                default:
-
-                    break;
-            }
-            *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
-        }
+        *second_number_lcd_tmp = second_number + LCD_BACKLIGHT_PERIOD;
+    }
 }
 
 void End_Time(BoilerSettings BoilerSettings_data, ElectricalMeasurements ElectricalMeasurements_data, TemperatureReadings TemperatureReadings_data,  uint8_t *hours, uint8_t *minutes)

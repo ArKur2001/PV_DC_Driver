@@ -8,6 +8,8 @@
 
 enum PWM_State ePWM_State = PWM_OFF;
 
+u_int16_t duty_cycle = 0;
+
 void PWM_init(uint8_t duty_resolution, uint8_t output_pin ,uint32_t frequency)
 {
     ledc_timer_config_t pwm_timer = {
@@ -41,10 +43,13 @@ enum PWM_State PWM_get_state()
     return ePWM_State;
 }
 
-void PWM_duty_cycle(u_int16_t PWM_duty_cycle)
+uint16_t PWM_get_duty_cycle()
 {
-    static u_int16_t duty_cycle = 0;
+    return duty_cycle;
+}
 
+void PWM_set_duty_cycle(u_int16_t PWM_duty_cycle)
+{
     duty_cycle = PWM_duty_cycle;
 
     switch (ePWM_State)

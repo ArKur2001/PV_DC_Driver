@@ -10,6 +10,13 @@
         "memory.h": "c",
         "led.h": "c",
         "task_user.h": "c",
-        "buttons.h": "c"
+        "buttons.h": "c",
+        "adc.h": "c",
+        "inttypes.h": "c",
+        "task.h": "c",
+        "string.h": "c",
+        "task_memory.h": "c",
+        "pwm.h": "c",
+        "freertos.h": "c"
     }
 }

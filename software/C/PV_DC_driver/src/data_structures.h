@@ -59,4 +59,12 @@ typedef struct {
     QueueHandle_t TimerData_queue;
 } TaskMemoryParameters;
 
+typedef struct {
+    QueueHandle_t ElectricalMeasurements_queue;
+    QueueHandle_t MPPTData_queue;
+    u_int8_t adc_voltage_pin; 
+    u_int8_t adc_current_pin;
+    u_int8_t pwm_duty_resolution_bit;
+} TaskMPPTParameters;
+
 #endif // DATA_STRUCTURES_H
