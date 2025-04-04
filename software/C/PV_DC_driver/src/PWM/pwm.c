@@ -36,6 +36,8 @@ void PWM_init(uint8_t duty_resolution, uint8_t output_pin ,uint32_t frequency)
 void PWM_control(enum PWM_State ePWM_State_control)
 {
     ePWM_State = ePWM_State_control;
+
+    PWM_set_duty_cycle(duty_cycle);
 }
 
 enum PWM_State PWM_get_state()
