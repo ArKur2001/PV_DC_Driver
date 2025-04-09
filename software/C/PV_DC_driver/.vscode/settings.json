@@ -17,6 +17,7 @@
         "string.h": "c",
         "task_memory.h": "c",
         "pwm.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "ds18b20.h": "c"
     }
 }

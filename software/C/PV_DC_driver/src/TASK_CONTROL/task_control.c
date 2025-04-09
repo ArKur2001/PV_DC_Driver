@@ -24,21 +24,21 @@ void Read_Temp(TemperatureReadings *TemperatureReadings_data, enum Water_Heating
 
     if(second_number_temp <= second_number || eWater_Heating_Status != ALLOW_HEATING)
     {
-        bool pwm_was_on = false;
-        
-        if(PWM_get_state() == PWM_ON)
-        {
-            pwm_was_on = true;
-        }
-        else
-        {
-            pwm_was_on = false;
-        }
-
-        if (pwm_was_on == true)
-        {
-            PWM_control(PWM_OFF);
-        }
+        //bool pwm_was_on = false;
+        //
+        //if(PWM_get_state() == PWM_ON)
+        //{
+        //    pwm_was_on = true;
+        //}
+        //else
+        //{
+        //    pwm_was_on = false;
+        //}
+//
+        //if (pwm_was_on == true)
+        //{
+        //    PWM_control(PWM_OFF);
+        //}
 
         TemperatureReadings_data->temp_water = ds18b20_get_temp(boiler_sensor_pin);
         TemperatureReadings_data->temp_case = ds18b20_get_temp(case_sensor_pin);
@@ -47,10 +47,10 @@ void Read_Temp(TemperatureReadings *TemperatureReadings_data, enum Water_Heating
 
         second_number_temp = second_number + TEMPERATURE_MEASUREMENT_PERIOD;
 
-        if (pwm_was_on == true)
-        {
-            PWM_control(PWM_ON);
-        }
+        //if (pwm_was_on == true)
+        //{
+        //    PWM_control(PWM_ON);
+        //}
     }  
 }
 

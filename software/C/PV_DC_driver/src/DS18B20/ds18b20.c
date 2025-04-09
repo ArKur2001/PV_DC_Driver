@@ -4,6 +4,8 @@
 #include "driver/gpio.h"
 #include "rom/ets_sys.h"
 
+#include "PWM/pwm.h"
+
 int ds18b20_reset(uint8_t pin) 
 {
     int response = 0;
@@ -89,10 +91,38 @@ int ds18b20_read_byte(uint8_t pin)
 
 float ds18b20_get_temp(uint8_t pin) 
 {
-    if (ds18b20_reset(pin) == 1) {
+    bool pwm_was_on = false;
+        
+    if(PWM_get_state() == PWM_ON)
+    {
+        pwm_was_on = true;
+    }
+    else
+    {
+        pwm_was_on = false;
+    }
+
+    if (pwm_was_on == true)
+    {
+        PWM_control(PWM_OFF);
+    }
+
+    if (ds18b20_reset(pin) == 1) 
+    {
         ds18b20_write_byte(pin, 0xCC); // SKIP ROM
         ds18b20_write_byte(pin, 0x44); // CONVERT T
+
+        if (pwm_was_on == true)
+        {
+            PWM_control(PWM_ON);
+        }
+        
         vTaskDelay(pdMS_TO_TICKS(375)); // Czas konwersji dla 11 bitów
+
+        if (pwm_was_on == true)
+        {
+            PWM_control(PWM_OFF);
+        }
 
         ds18b20_reset(pin);
         ds18b20_write_byte(pin, 0xCC); // SKIP ROM
@@ -101,6 +131,11 @@ float ds18b20_get_temp(uint8_t pin)
         int temp_LSB = ds18b20_read_byte(pin);
         int temp_MSB = ds18b20_read_byte(pin);
         int16_t temp = (temp_MSB << 8) | temp_LSB;
+
+        if (pwm_was_on == true)
+        {
+            PWM_control(PWM_ON);
+        }
 
         return temp / 16.0; // Celcius degree conversion
     } 
