@@ -1,8 +1,9 @@
 #include "driver/gpio.h"
 #include "rom/ets_sys.h"
 #include <BUTTONS/buttons.h>
-
 #include <esp_log.h>
+
+#define BUTTON_STATE_CHECK_NUMBER 2
 
 const char* TAG = "BUTTONS";
 
@@ -24,7 +25,7 @@ void Set_Button_0_state(void *arg)
 
     ets_delay_us(10);
 
-    for (uint8_t i = 0; i < 2; i++)
+    for (uint8_t i = 0 ; i < BUTTON_STATE_CHECK_NUMBER; i++)
     {
         if(gpio_get_level(but0_pin) == 0)
         {
@@ -39,7 +40,7 @@ void Set_Button_0_state(void *arg)
     }
 
 
-    if(counter == 2)
+    if(counter == BUTTON_STATE_CHECK_NUMBER)
     {
         ebut0_level = PRESSED;
     }
@@ -59,7 +60,7 @@ void Set_Button_1_state(void* arg)
 
     ets_delay_us(10);
 
-    for (uint8_t i = 0; i < 2; i++)
+    for (uint8_t i = 0 ; i < BUTTON_STATE_CHECK_NUMBER ; i++)
     {
         if(gpio_get_level(but1_pin) == 0)
         {
@@ -74,7 +75,7 @@ void Set_Button_1_state(void* arg)
     }
     
 
-    if(counter == 2)
+    if(counter == BUTTON_STATE_CHECK_NUMBER)
     {
         ebut1_level = PRESSED;
     }
@@ -94,7 +95,7 @@ void Set_Button_2_state(void* arg)
 
     ets_delay_us(10);
 
-    for (uint8_t i = 0; i < 2; i++)
+    for (uint8_t i = 0 ; i < BUTTON_STATE_CHECK_NUMBER ; i++)
     {
         if(gpio_get_level(but2_pin) == 0)
         {
@@ -109,7 +110,7 @@ void Set_Button_2_state(void* arg)
     }
 
 
-    if(counter == 2)
+    if(counter == BUTTON_STATE_CHECK_NUMBER)
     {
         ebut2_level = PRESSED;
     }

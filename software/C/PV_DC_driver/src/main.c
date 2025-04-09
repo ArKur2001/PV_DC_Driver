@@ -49,8 +49,6 @@
 #define LED_GREEN_PIN               18      //GPIO18
 #define LED_RED_PIN                 19      //GPIO19
 
-double power_value = 0.0;
-
 QueueHandle_t BoilerSettings_queue;
 QueueHandle_t ElectricalMeasurements_queue; 
 QueueHandle_t TemperatureReadings_queue;
