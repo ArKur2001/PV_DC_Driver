@@ -93,32 +93,6 @@ void queue_init()
     xQueueSend(MPPTData_queue, &MPPTData_data, pdMS_TO_TICKS(100));
 }
 
-void test_receive()
-{
-    static TemperatureReadings boiler_data;
-    static MPPTData mppt_data;
-    
-    while(1)
-    {
-        xQueuePeek(TemperatureReadings_queue, &boiler_data, pdMS_TO_TICKS(0));
-        xQueuePeek(MPPTData_queue, &mppt_data, pdMS_TO_TICKS(0));
-
-        if(mppt_data.eMPPT_Permission == MPPT_ALLOWED)
-        {
-            printf("allowed\n");
-        }
-        else
-        {
-            //printf("not allowed\n");
-        }
-
-        //printf("boiler temp is: %f\n", boiler_data.temp_water);
-        //printf("case temp is: %f\n",  boiler_data.temp_case);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
 void app_main() 
 {
     Button_Init(BUTTON_0_GPIO, BUTTON_1_GPIO, BUTTON_2_GPIO);
@@ -154,5 +128,4 @@ void app_main()
     xTaskCreate(Task_Control, "Task_Control", 4096, &Task_Control_params, 30, NULL);
     xTaskCreate(Task_Memory, "Task_Memory", 4096, &Task_Memory_params, 10, NULL);
     xTaskCreate(Task_MPPT, "Task_MPPT", 4096, &Task_MPPT_params, 20, NULL);
-    xTaskCreate(test_receive, "Task_Receive", 4096, NULL, 10, NULL);
 }
