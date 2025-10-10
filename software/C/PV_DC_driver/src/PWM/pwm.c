@@ -8,7 +8,7 @@
 
 enum PWM_State ePWM_State = PWM_OFF;
 
-u_int16_t duty_cycle = 0;
+uint16_t duty_cycle = 0;
 
 void PWM_init(uint8_t duty_resolution, uint8_t output_pin ,uint32_t frequency)
 {
@@ -50,7 +50,7 @@ uint16_t PWM_get_duty_cycle()
     return duty_cycle;
 }
 
-void PWM_set_duty_cycle(u_int16_t PWM_duty_cycle)
+void PWM_set_duty_cycle(uint16_t PWM_duty_cycle)
 {
     duty_cycle = PWM_duty_cycle;
 

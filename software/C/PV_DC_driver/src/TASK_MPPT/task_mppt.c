@@ -14,7 +14,7 @@
 enum Task_MPPT_state    {RECEIVE, MEASUREMENTS, MPPT, SEND};
 enum MPPT_stage         {SETUP, SET_LOWER_DUTY, CHECK_LOWER, SET_HIGHER_DUTY, CHECK_HIGHER, DUTY_SELECT};
 
-void Measurements(ElectricalMeasurements *ElectricalMeasurements_data, uint8_t adc_voltage_pin, uint8_t adc_current_pin, u_int8_t pwm_duty_resolution_bit)
+void Measurements(ElectricalMeasurements *ElectricalMeasurements_data, uint8_t adc_voltage_pin, uint8_t adc_current_pin, uint8_t pwm_duty_resolution_bit)
 {
     vTaskDelay(pdMS_TO_TICKS(MEASUREMENT_DELAY));
 
@@ -39,7 +39,7 @@ void Measurements(ElectricalMeasurements *ElectricalMeasurements_data, uint8_t a
     printf("Power RMS value = %f W\n", ElectricalMeasurements_data->power_value);    
 }
 
-void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, u_int8_t pwm_duty_resolution_bit, enum Task_MPPT_state *eTask_MPPT_state)
+void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, uint8_t pwm_duty_resolution_bit, enum Task_MPPT_state *eTask_MPPT_state)
 {
     static enum MPPT_stage eMPPT_stage = SETUP;
 
@@ -156,9 +156,9 @@ void Task_MPPT(void *pvParameters)
 
     QueueHandle_t ElectricalMeasurements_queue = params->ElectricalMeasurements_queue;
     QueueHandle_t MPPTData_queue = params->MPPTData_queue;
-    u_int8_t adc_voltage_pin = params->adc_voltage_pin;
-    u_int8_t adc_current_pin = params->adc_current_pin;
-    u_int8_t pwm_duty_resolution_bit = params->pwm_duty_resolution_bit;
+    uint8_t adc_voltage_pin = params->adc_voltage_pin;
+    uint8_t adc_current_pin = params->adc_current_pin;
+    uint8_t pwm_duty_resolution_bit = params->pwm_duty_resolution_bit;
 
     static enum Task_MPPT_state eTask_MPPT_state = RECEIVE;
 
