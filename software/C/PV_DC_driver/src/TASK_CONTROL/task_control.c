@@ -13,7 +13,7 @@
 #define TEMPERATURE_MEASUREMENT_PERIOD  10  //s
 
 #define MPPT_PERIOD                     300  //s
-#define MPPT_POWER_DIFF                 50
+#define MPPT_POWER_DIFF                 5 // 50
 
 enum Task_Control_state     {RECEIVE, READ_TEMP, HEATING_CONTROL, MPPT_CONTROL, SET_LED, SEND};
 enum Water_Heating_Status   {STOP_HEATING, ALLOW_HEATING, ERROR};

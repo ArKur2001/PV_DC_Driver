@@ -33,7 +33,7 @@
 #define BUTTON_1_GPIO               27      //GPIO27
 #define BUTTON_2_GPIO               26      //GPIO26
 
-#define VOLTAGE_MULTIPLIER          189.86  // 19.88   //voltage_divider_value
+#define VOLTAGE_MULTIPLIER          19.88  // 189.86 //voltage_divider_value
 #define VOLTAGE_REF_LVL             900     //voltage_potentiometer_ref(mV)
 #define CURRENT_REF_LVL             900     //current_potentiometer_ref(mV)
 
