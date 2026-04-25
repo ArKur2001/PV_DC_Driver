@@ -9,7 +9,7 @@
 #include "math.h"
 
 #define ADC_SAMPLES_NUMBER          100 
-#define MEASUREMENT_DELAY           300     //3 time constants (ms)
+#define MEASUREMENT_DELAY           100     //mimimum 3 time constants (ms)
 
 enum Task_MPPT_state    {RECEIVE, MEASUREMENTS, MPPT, SEND};
 enum MPPT_stage         {SETUP, SET_LOWER_DUTY, CHECK_LOWER, SET_HIGHER_DUTY, CHECK_HIGHER, DUTY_SELECT};
@@ -39,7 +39,7 @@ void Measurements(ElectricalMeasurements *ElectricalMeasurements_data, uint8_t a
     printf("Power RMS value = %f W\n", ElectricalMeasurements_data->power_value);    
 }
 
-void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, uint8_t pwm_duty_resolution_bit, enum Task_MPPT_state *eTask_MPPT_state)
+void Hill_Climb_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, uint8_t pwm_duty_resolution_bit, enum Task_MPPT_state *eTask_MPPT_state)
 {
     static enum MPPT_stage eMPPT_stage = SETUP;
 
@@ -47,17 +47,15 @@ void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMe
 
     static uint16_t pwm_duty_mppt_lower = 0;
     static uint16_t pwm_duty_mppt_higher = 0;
+    static uint16_t pwm_duty_mppt_opt = 0;
 
     static double power_pwm_lower = 0.0;
     static double power_pwm_higher = 0.0;
-
-    double power_opt = 0.0;
+    static double power_opt = 0.0;
 
     switch (eMPPT_stage)
     {
         case SETUP:
-            pwm_duty_resolution_bit_temp = pwm_duty_resolution_bit - 1;
-
             if(MPPTData_data->eMPPT_Permission == MPPT_NOT_ALLOWED)
             {
                 eMPPT_stage = SETUP;
@@ -65,6 +63,10 @@ void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMe
             }
             else
             {
+                power_opt = 0.0;
+            
+                pwm_duty_resolution_bit_temp = pwm_duty_resolution_bit - 1;
+
                 pwm_duty_mppt_lower = pow(2, pwm_duty_resolution_bit_temp) - pow(2, pwm_duty_resolution_bit_temp - 1);
                 pwm_duty_mppt_higher = pow(2, pwm_duty_resolution_bit_temp) + pow(2, pwm_duty_resolution_bit_temp - 1);
 
@@ -111,18 +113,32 @@ void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMe
 
             if(power_pwm_lower > power_pwm_higher)
             {
-                PWM_set_duty_cycle(pwm_duty_mppt_lower);
-
-                power_opt = power_pwm_lower;
+                if(power_pwm_lower > power_opt)
+                {
+                    power_opt = power_pwm_lower;
+                    pwm_duty_mppt_opt = pwm_duty_mppt_lower;
+                }
+                else
+                {
+                    power_opt = power_opt;
+                    pwm_duty_mppt_opt = pwm_duty_mppt_opt;
+                }
 
                 pwm_duty_mppt_lower = pwm_duty_mppt_lower - pow(2, pwm_duty_resolution_bit_temp - 1);
                 pwm_duty_mppt_higher = pwm_duty_mppt_lower + pow(2, pwm_duty_resolution_bit_temp - 1);
             }    
             else
             {
-                PWM_set_duty_cycle(pwm_duty_mppt_higher);
-
-                power_opt = power_pwm_higher;
+                if(power_pwm_higher > power_opt)
+                {
+                    power_opt = power_pwm_higher;
+                    pwm_duty_mppt_opt = pwm_duty_mppt_higher;
+                }
+                else
+                {
+                    power_opt = power_opt;
+                    pwm_duty_mppt_opt = pwm_duty_mppt_opt;
+                }
 
                 pwm_duty_mppt_lower = pwm_duty_mppt_higher - pow(2, pwm_duty_resolution_bit_temp - 1);
                 pwm_duty_mppt_higher = pwm_duty_mppt_higher + pow(2, pwm_duty_resolution_bit_temp - 1);
@@ -130,6 +146,8 @@ void MPPT_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMe
 
             if(pwm_duty_resolution_bit_temp < 1)
             {
+                PWM_set_duty_cycle(pwm_duty_mppt_opt);
+
                 MPPTData_data->power_opt = power_opt;
 
                 eMPPT_stage = SETUP;
@@ -194,7 +212,7 @@ void Task_MPPT(void *pvParameters)
                 break;
 
             case MPPT:
-                MPPT_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state);
+                Hill_Climb_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state);
 
                 vTaskDelay(pdMS_TO_TICKS(10));
 
