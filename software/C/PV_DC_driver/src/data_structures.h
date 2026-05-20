@@ -2,7 +2,9 @@
 #define DATA_STRUCTURES_H
 
 #include <inttypes.h>
+#include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "freertos/task.h"
 
 enum MPPT_Permission {MPPT_NOT_ALLOWED, MPPT_ALLOWED};
 
