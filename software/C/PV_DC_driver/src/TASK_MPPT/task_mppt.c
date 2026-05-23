@@ -12,7 +12,8 @@
 //#include <MPPT_ALGORITHMS/NO_ALGORITHM/no_algorithm.h>
 //#include <MPPT_ALGORITHMS/P_and_O/p_and_o.h>
 //#include <MPPT_ALGORITHMS/THREE_POINT_WEIGHT/tpw.h>
-#include <MPPT_ALGORITHMS/CURRENT_SWEEP/current_sweep.h>
+//#include <MPPT_ALGORITHMS/CURRENT_SWEEP/current_sweep.h>
+#include <MPPT_ALGORITHMS/DIFFERENTIAL_EVOLUTION/diff_evol.h>
 
 #define ADC_SAMPLES_NUMBER          100 
 #define MEASUREMENT_DELAY           100     //mimimum 3 time constants (ms)
@@ -91,7 +92,8 @@ void Task_MPPT(void *pvParameters)
                 //No_algorithm(&MPPTData_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //P_and_O_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //TPW_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
-                Current_Sweep_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
+                //Current_Sweep_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
+                Differential_Evolution_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
 
                 vTaskDelay(pdMS_TO_TICKS(10));
 
