@@ -4,7 +4,6 @@
 #include "PWM/pwm.h"
 #include "data_structures.h"
 #include "math.h"
-#include "bootloader_random.h"
 #include "esp_random.h"
 
 enum MPPT_stage {SETUP, SET_DUTY_I, CHECK_POWER_I, MUTATION_CROSSOVER, SET_DUTY_UI, CHECK_POWER_UI, SELECTION, CHECK_MPP, GET_POWER_MPP};
@@ -49,8 +48,6 @@ void Differential_Evolution_algorithm(MPPTData *MPPTData_data, ElectricalMeasure
     static double P_best = 0.0;
 
     uint16_t duty = 0;
-
-    bootloader_random_enable();
 
     switch (eMPPT_stage)
     {
@@ -151,6 +148,8 @@ void Differential_Evolution_algorithm(MPPTData *MPPTData_data, ElectricalMeasure
 
             for(i = 0 ; i < 3 ; i++)
             {
+                vTaskDelay(pdMS_TO_TICKS(1));
+
                 generate_random_indices(random_idx);
 
                 Dr[0] = D_i_G[random_idx[0]];
@@ -185,6 +184,7 @@ void Differential_Evolution_algorithm(MPPTData *MPPTData_data, ElectricalMeasure
 
             for(j = 0 ; j < 3 ; j++)
             {
+                vTaskDelay(pdMS_TO_TICKS(1));
                 rand_num = (float)esp_random() / UINT32_MAX;   
                 printf("rand_num = %.10f\n", rand_num);
                 
