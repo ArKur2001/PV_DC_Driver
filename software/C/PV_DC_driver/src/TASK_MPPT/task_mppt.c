@@ -14,7 +14,8 @@
 //#include <MPPT_ALGORITHMS/THREE_POINT_WEIGHT/tpw.h>
 //#include <MPPT_ALGORITHMS/CURRENT_SWEEP/current_sweep.h>
 //#include <MPPT_ALGORITHMS/DIFFERENTIAL_EVOLUTION/diff_evol.h>
-#include <MPPT_ALGORITHMS/INCREMENTAL_CONDUCTANCE/inc_cond.h>
+//#include <MPPT_ALGORITHMS/INCREMENTAL_CONDUCTANCE/inc_cond.h>
+#include <MPPT_ALGORITHMS/PSO/pso.h>
 
 #define ADC_SAMPLES_NUMBER          100 
 #define MEASUREMENT_DELAY           100     //mimimum 3 time constants (ms)
@@ -95,7 +96,8 @@ void Task_MPPT(void *pvParameters)
                 //TPW_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //Current_Sweep_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
                 //Differential_Evolution_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
-                Incremental_Conductance_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
+                //Incremental_Conductance_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
+                PSO_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
 
                 vTaskDelay(pdMS_TO_TICKS(10));
 
