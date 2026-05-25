@@ -23,7 +23,7 @@ void GWO_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMea
     static float grey_wolf_duty[N] = {0.0};
     static double grey_wolf_power[N] = {0.0};
     
-    uint16_t duty = 0;
+    int16_t duty = 0;
 
     switch (eMPPT_stage)
     {
