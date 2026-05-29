@@ -1,0 +1,1 @@
+bool uart_command_receiver(void);

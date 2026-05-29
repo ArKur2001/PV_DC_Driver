@@ -8,11 +8,13 @@
 #include "PWM/pwm.h"
 #include "data_structures.h"
 
+#include "UART/uart.h"
+
 #define CASE_MAX_TEMP                   75
 #define ERROR_TEMP                      0
-#define TEMPERATURE_MEASUREMENT_PERIOD  30  //10 s
+#define TEMPERATURE_MEASUREMENT_PERIOD  1000  //10 s
 
-#define MPPT_PERIOD                     100  //300 s
+#define MPPT_PERIOD                     1000  //300 s
 #define MPPT_POWER_DIFF                 5 // 50
 
 enum Task_Control_state     {RECEIVE, READ_TEMP, HEATING_CONTROL, MPPT_CONTROL, SET_LED, SEND};
@@ -82,7 +84,7 @@ void Heating_Control(TemperatureReadings TemperatureReadings_data, BoilerSetting
     }
 }
 
-void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, enum Water_Heating_Status eWater_Heating_Status, uint64_t second_number)
+void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeasurements_data, enum Water_Heating_Status eWater_Heating_Status, uint64_t second_number, bool enable_MPPT_algorithm)
 {
     static enum Water_Heating_Status eWater_Heating_Status_previous = STOP_HEATING;
     static uint64_t second_number_mppt = 0;
@@ -91,7 +93,7 @@ void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeas
 
     if (eWater_Heating_Status == ALLOW_HEATING)  
     {
-        if (((power_diff >= MPPT_POWER_DIFF && ElectricalMeasurements_data.power_value != 0) || second_number >= second_number_mppt) || (eWater_Heating_Status_previous != ALLOW_HEATING)) 
+        if ((((power_diff >= MPPT_POWER_DIFF && ElectricalMeasurements_data.power_value != 0) || second_number >= second_number_mppt) || (eWater_Heating_Status_previous != ALLOW_HEATING)) && enable_MPPT_algorithm == true) 
         {
             MPPTData_data->eMPPT_Permission = MPPT_ALLOWED;
             second_number_mppt = second_number + MPPT_PERIOD; 
@@ -209,7 +211,7 @@ void Task_Control(void *pvParameters)
             break;
 
         case MPPT_CONTROL:
-            MPPT_control(&MPPTData_data, ElectricalMeasurements_data, eWater_Heating_Status, TimerData_data.second_number);
+            MPPT_control(&MPPTData_data, ElectricalMeasurements_data, eWater_Heating_Status, TimerData_data.second_number, uart_command_receiver());
 
             eTask_Control_state = SET_LED;
 
