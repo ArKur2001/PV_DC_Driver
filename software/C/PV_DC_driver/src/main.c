@@ -17,7 +17,9 @@
 #include <MEASUREMENTS/measurements.h>
 #include "data_structures.h"
 #include "esp_timer.h"
+
 #include "bootloader_random.h"
+#include "UART/uart.h"
 
 #define PWM_DUTY_RES_BIT            7       //128
 #define PWM_DUTY_RES                128
@@ -111,6 +113,7 @@ void app_main()
     esp_timer_start_periodic(program_timer_handler, 1000000);
 
     bootloader_random_enable();
+    uart_init();
 
     LCD_INFO_state();
 
