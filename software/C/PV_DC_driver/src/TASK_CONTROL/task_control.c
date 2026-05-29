@@ -45,7 +45,7 @@ void Read_Temp(TemperatureReadings *TemperatureReadings_data, enum Water_Heating
         TemperatureReadings_data->temp_water = ds18b20_get_temp(boiler_sensor_pin);
         TemperatureReadings_data->temp_case = ds18b20_get_temp(case_sensor_pin);
 
-        printf("boiler temp is: %f\n", TemperatureReadings_data->temp_water);
+        //printf("boiler temp is: %f\n", TemperatureReadings_data->temp_water);
 
         second_number_temp = second_number + TEMPERATURE_MEASUREMENT_PERIOD;
 
@@ -98,7 +98,7 @@ void MPPT_control(MPPTData *MPPTData_data, ElectricalMeasurements ElectricalMeas
             MPPTData_data->eMPPT_Permission = MPPT_ALLOWED;
             second_number_mppt = second_number + MPPT_PERIOD; 
             
-            printf("Power diff = %f W\n", power_diff); 
+            //printf("Power diff = %f W\n", power_diff); 
         }
         else
         {

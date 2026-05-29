@@ -186,7 +186,7 @@ void Differential_Evolution_algorithm(MPPTData *MPPTData_data, ElectricalMeasure
             {
                 vTaskDelay(pdMS_TO_TICKS(1));
                 rand_num = (float)esp_random() / UINT32_MAX;   
-                printf("rand_num = %.10f\n", rand_num);
+                //printf("rand_num = %.10f\n", rand_num);
                 
                 if(rand_num >= (CR/2) && rand_num <= (1 - (CR/2)))
                 {
