@@ -12,9 +12,9 @@
 
 #define CASE_MAX_TEMP                   75
 #define ERROR_TEMP                      0
-#define TEMPERATURE_MEASUREMENT_PERIOD  1000  //10 s
+#define TEMPERATURE_MEASUREMENT_PERIOD  10000  //10 s
 
-#define MPPT_PERIOD                     1000  //300 s
+#define MPPT_PERIOD                     2000  //300 s
 #define MPPT_POWER_DIFF                 5 // 50
 
 enum Task_Control_state     {RECEIVE, READ_TEMP, HEATING_CONTROL, MPPT_CONTROL, SET_LED, SEND};

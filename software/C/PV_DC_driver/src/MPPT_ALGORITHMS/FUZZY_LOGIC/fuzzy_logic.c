@@ -171,19 +171,17 @@ void Fuzzy_logic_algorithm(MPPTData *MPPTData_data, ElectricalMeasurements Elect
 
             duty_buf += duty_delta;
 
-            if(duty_buf >= 1.0)
+            if(duty_buf > 1.0)
             {
-                duty = duty_max;
+                duty_buf = 1.0;
             }
-            else if(duty_buf <= 0.0)
+            else if(duty_buf < 0.0)
             {
-                duty = duty_min;
-            }
-            else
-            {
-                duty = duty_min + (uint16_t)(duty_buf * (duty_max - duty_min));
+                duty_buf = 0.0;
             }
 
+            duty = duty_min + (uint16_t)(duty_buf * (duty_max - duty_min));
+        
             PWM_set_duty_cycle(duty);
 
             eMPPT_stage = SET_DUTY;
