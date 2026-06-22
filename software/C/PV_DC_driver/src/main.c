@@ -124,8 +124,8 @@ void app_main()
     TaskMemoryParameters Task_Memory_params = {BoilerSettings_queue, TimerData_queue};
     TaskMPPTParameters Task_MPPT_params = {ElectricalMeasurements_queue, MPPTData_queue, ADC_VOLTAGE_PIN, ADC_CURRENT_PIN, PWM_DUTY_RES_BIT};
 
-    xTaskCreate(Task_User, "Task_User", 4096, &Task_User_params, 20, NULL);
-    xTaskCreate(Task_Control, "Task_Control", 4096, &Task_Control_params, 30, NULL);
-    xTaskCreate(Task_Memory, "Task_Memory", 4096, &Task_Memory_params, 10, NULL);
-    xTaskCreate(Task_MPPT, "Task_MPPT", 4096, &Task_MPPT_params, 20, NULL);
+    xTaskCreate(Task_User, "Task_User", 4096, &Task_User_params, 16, NULL);
+    xTaskCreate(Task_Control, "Task_Control", 4096, &Task_Control_params, 24, NULL);
+    xTaskCreate(Task_Memory, "Task_Memory", 4096, &Task_Memory_params, 8, NULL);
+    xTaskCreate(Task_MPPT, "Task_MPPT", 4096, &Task_MPPT_params, 16, NULL);
 }
