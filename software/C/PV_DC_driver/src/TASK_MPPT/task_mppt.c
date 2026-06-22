@@ -9,7 +9,7 @@
 #include "math.h"
 
 //#include <MPPT_ALGORITHMS/NO_ALGORITHM/no_algorithm.h>
-//#include <MPPT_ALGORITHMS/HILL_CLIMB/hill_climb.h>
+#include <MPPT_ALGORITHMS/HILL_CLIMB/hill_climb.h>
 //#include <MPPT_ALGORITHMS/P_and_O/p_and_o.h>
 //#include <MPPT_ALGORITHMS/THREE_POINT_WEIGHT/tpw.h>
 //#include <MPPT_ALGORITHMS/CURRENT_SWEEP/current_sweep.h>
@@ -17,7 +17,7 @@
 //#include <MPPT_ALGORITHMS/INCREMENTAL_CONDUCTANCE/inc_cond.h>
 //#include <MPPT_ALGORITHMS/PSO/pso.h>
 //#include <MPPT_ALGORITHMS/GWO/gwo.h>
-#include <MPPT_ALGORITHMS/FUZZY_LOGIC/fuzzy_logic.h>
+//#include <MPPT_ALGORITHMS/FUZZY_LOGIC/fuzzy_logic.h>
 //#include <MPPT_ALGORITHMS/PSO_P&O/hybrid.h>
 
 #define ADC_SAMPLES_NUMBER          100 
@@ -96,7 +96,7 @@ void Task_MPPT(void *pvParameters)
 
             case MPPT:
                 //No_algorithm(&MPPTData_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
-                //Hill_Climb_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
+                Hill_Climb_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
                 //P_and_O_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //TPW_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //Current_Sweep_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
@@ -104,7 +104,7 @@ void Task_MPPT(void *pvParameters)
                 //Incremental_Conductance_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
                 //PSO_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
                 //GWO_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status);
-                Fuzzy_logic_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
+                //Fuzzy_logic_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
                 //Hybrid_algorithm(&MPPTData_data, ElectricalMeasurements_data, pwm_duty_resolution_bit, &eTask_MPPT_state, &eAlgorithm_Status); //DO NOT USE THIS ALGORITHM IN REAL APPLICATION, TEMPERATURE READING ISN'T WORKING !!!
 
                 vTaskDelay(pdMS_TO_TICKS(10));
