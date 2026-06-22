@@ -21,7 +21,7 @@
 //#include <MPPT_ALGORITHMS/PSO_P&O/hybrid.h>
 
 #define ADC_SAMPLES_NUMBER          100 
-#define MEASUREMENT_DELAY           500     //mimimum 3 time constants (ms)
+#define MEASUREMENT_DELAY           300     //mimimum 3 time constants (ms)
 
 void Measurements(ElectricalMeasurements *ElectricalMeasurements_data, uint8_t adc_voltage_pin, uint8_t adc_current_pin, uint8_t pwm_duty_resolution_bit)
 {
